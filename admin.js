@@ -133,6 +133,7 @@ function displayAppointments() {
                 ${apt.status === 'pending' ? `<button class="btn btn-approve" onclick="updateStatus('${apt.id}', 'approved')">אשר תור</button>` : ''}
                 ${apt.status === 'approved' ? `<button class="btn btn-pending" onclick="updateStatus('${apt.id}', 'pending')">בטל אישור</button>` : ''}
                 ${apt.status !== 'cancelled' ? `<button class="btn btn-cancel" onclick="updateStatus('${apt.id}', 'cancelled')">בטל תור</button>` : ''}
+                <button class="btn btn-calendar" onclick="addToGoogleCalendar('${apt.id}')">📅 הוסף ליומן</button>
                 <button class="btn btn-delete" onclick="deleteAppointment('${apt.id}')">מחק</button>
             </div>
         </div>
@@ -217,5 +218,42 @@ async function deleteAppointment(id) {
         console.error('Error deleting appointment:', error);
         alert('שגיאה במחיקת התור');
     }
+}
+
+function addToGoogleCalendar(id) {
+    const appointment = appointments.find(apt => apt.id === id);
+    if (!appointment) return;
+    
+    // Create event details
+    const title = `תור במספרה 360 - ${appointment.name}`;
+    const description = `
+שירות: ${getServiceName(appointment.service)}
+לקוח: ${appointment.name}
+טלפון: ${appointment.phone}
+אימייל: ${appointment.email}
+הערות: ${appointment.notes || 'ללא'}
+    `.trim();
+    
+    // Parse date and time
+    const startDateTime = new Date(appointment.date + 'T' + appointment.time);
+    const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // +1 hour
+    
+    // Format for Google Calendar
+    const formatGoogleDate = (date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+    
+    const startFormatted = formatGoogleDate(startDateTime);
+    const endFormatted = formatGoogleDate(endDateTime);
+    
+    // Create Google Calendar URL
+    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+        `&text=${encodeURIComponent(title)}` +
+        `&details=${encodeURIComponent(description)}` +
+        `&location=${encodeURIComponent('ויצמן 1, כפר סבא')}` +
+        `&dates=${startFormatted}/${endFormatted}`;
+    
+    // Open in new tab
+    window.open(calendarUrl, '_blank');
 }
 

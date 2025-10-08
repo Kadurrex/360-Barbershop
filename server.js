@@ -37,8 +37,8 @@ cron.schedule('* * * * *', () => {
                 const timeDiff = aptDateTime - now;
                 const minutesDiff = Math.floor(timeDiff / 1000 / 60);
                 
-                // Send reminder between 25-35 minutes before (wider window)
-                if (minutesDiff >= 25 && minutesDiff <= 35) {
+                // Send reminder between 13-17 minutes before (TESTING MODE - change back to 25-35 later!)
+                if (minutesDiff >= 13 && minutesDiff <= 17) {
                     sendClientReminder(apt);
                     apt.reminderSent = true;
                     fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
