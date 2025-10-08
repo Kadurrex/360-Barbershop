@@ -48,10 +48,19 @@ body {
 }
 
 .nav-brand {
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--primary-color);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.nav-brand:hover {
+    transform: scale(1.05);
+}
+
+.nav-brand svg {
+    filter: drop-shadow(2px 2px 4px rgba(212, 175, 55, 0.5));
 }
 
 .nav-menu {
@@ -227,8 +236,10 @@ section {
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .service-card {
@@ -348,6 +359,69 @@ section {
 .feature h4 {
     font-size: 1.2rem;
     color: var(--secondary-color);
+}
+
+/* Location Section */
+.location-section {
+    background: white;
+    padding: 5rem 0;
+}
+
+.location-section .section-title {
+    color: var(--secondary-color);
+}
+
+.location-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+    margin-top: 2rem;
+}
+
+.location-info {
+    background: var(--bg-light);
+    padding: 2rem;
+    border-radius: 15px;
+}
+
+.location-info h3 {
+    font-size: 1.8rem;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+}
+
+.location-info p {
+    color: #555;
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.contact-details {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid rgba(212, 175, 55, 0.3);
+}
+
+.phone-link {
+    display: inline-block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    margin: 1rem 0;
+    transition: all 0.3s ease;
+}
+
+.phone-link:hover {
+    color: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+.map-container {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 /* Appointment Section */
@@ -512,6 +586,11 @@ section {
     
     .about-features {
         flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .location-content {
+        grid-template-columns: 1fr;
         gap: 2rem;
     }
     
