@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360 - מספרת גברים מקצועית</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">360</div>
+            <ul class="nav-menu">
+                <li><a href="#home">בית</a></li>
+                <li><a href="#services">שירותים</a></li>
+                <li><a href="#gallery">גלריה</a></li>
+                <li><a href="#about">אודות</a></li>
+                <li><a href="#appointment" class="btn-nav">קבע תור</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">ברוכים הבאים ל-360</h1>
+            <p class="hero-subtitle">מספרת גברים מקצועית - סטייל, דיוק ומקצועיות</p>
+            <a href="#appointment" class="btn-primary">קבע תור עכשיו</a>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title">השירותים שלנו</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">✂️</div>
+                    <h3>תספורת גברים</h3>
+                    <p>תספורת מקצועית על ידי ספרים מנוסים</p>
+                    <span class="price">₪80</span>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🪒</div>
+                    <h3>גילוח מסורתי</h3>
+                    <p>גילוח חלק ומרגיע עם מגבות חמות</p>
+                    <span class="price">₪60</span>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💈</div>
+                    <h3>עיצוב זקן</h3>
+                    <p>עיצוב וטיפוח זקן מקצועי</p>
+                    <span class="price">₪50</span>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✨</div>
+                    <h3>חבילה מלאה</h3>
+                    <p>תספורת + גילוח + זקן</p>
+                    <span class="price">₪160</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <h2 class="section-title">הגלריה שלנו</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <span class="gallery-text">תספורת קלאסית</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <span class="gallery-text">גילוח מקצועי</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <span class="gallery-text">עיצוב זקן</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <span class="gallery-text">סטייל מודרני</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <h2 class="section-title">אודות 360</h2>
+                <p>מספרת 360 היא יותר מסתם מקום לתספורת - זהו חוויה מלאה של סטייל ומקצועיות. הספרים שלנו עברו הכשרה מקצועית ומביאים איתם שנים של ניסיון.</p>
+                <p>אנחנו מאמינים שכל לקוח ייחודי וראוי ליחס אישי. בין אם אתה מחפש תספורת קלאסית או סטייל מודרני, אנחנו כאן בשבילך.</p>
+                <div class="about-features">
+                    <div class="feature">
+                        <div class="feature-icon">⭐</div>
+                        <h4>איכות מעולה</h4>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⏱️</div>
+                        <h4>שירות מהיר</h4>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">💯</div>
+                        <h4>מקצועיות גבוהה</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Appointment Section -->
+    <section id="appointment" class="appointment">
+        <div class="container">
+            <h2 class="section-title">קביעת תור</h2>
+            <div class="appointment-container">
+                <form id="appointmentForm" class="appointment-form">
+                    <div class="form-group">
+                        <label for="name">שם מלא</label>
+                        <input type="text" id="name" name="name" required placeholder="הכנס את שמך">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">טלפון</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="050-1234567">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">אימייל</label>
+                        <input type="email" id="email" name="email" required placeholder="example@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="service">בחר שירות</label>
+                        <select id="service" name="service" required>
+                            <option value="">בחר שירות</option>
+                            <option value="haircut">תספורת גברים - ₪80</option>
+                            <option value="shave">גילוח מסורתי - ₪60</option>
+                            <option value="beard">עיצוב זקן - ₪50</option>
+                            <option value="package">חבילה מלאה - ₪160</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">תאריך</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">שעה</label>
+                        <select id="time" name="time" required>
+                            <option value="">בחר שעה</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                            <option value="18:00">18:00</option>
+                            <option value="19:00">19:00</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">הערות</label>
+                        <textarea id="notes" name="notes" rows="4" placeholder="הערות נוספות (אופציונלי)"></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">שלח בקשה</button>
+                </form>
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <div class="success-icon">✓</div>
+                    <h3>התור נקבע בהצלחה!</h3>
+                    <p>נחזור אליך בהקדם לאישור הפגישה</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>360 מספרה</h3>
+                    <p>הכתובת המובילה לסטייל גברי</p>
+                </div>
+                <div class="footer-section">
+                    <h4>שעות פתיחה</h4>
+                    <p>א'-ה': 09:00 - 20:00</p>
+                    <p>ו': 09:00 - 15:00</p>
+                    <p>שבת: סגור</p>
+                </div>
+                <div class="footer-section">
+                    <h4>צור קשר</h4>
+                    <p>טלפון: 03-1234567</p>
+                    <p>כתובת: רחוב הראשי 123, תל אביב</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 360 מספרה. כל הזכויות שמורות.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
