@@ -101,9 +101,9 @@ document.querySelectorAll('section').forEach(section => {
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 100) {
-        navbar.style.background = 'rgba(26, 26, 26, 1)';
+        navbar.style.background = 'rgba(30, 58, 95, 1)';
     } else {
-        navbar.style.background = 'rgba(26, 26, 26, 0.95)';
+        navbar.style.background = 'rgba(30, 58, 95, 0.98)';
     }
 });
 

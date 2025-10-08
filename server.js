@@ -42,7 +42,24 @@ app.post('/api/appointments', (req, res) => {
         appointments.push(newAppointment);
         fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
         
-        console.log('New appointment created:', newAppointment);
+        // Log appointment details for the owner
+        console.log('\n🎉 תור חדש נקבע! / New Appointment Received!');
+        console.log('================================');
+        console.log(`שם / Name: ${newAppointment.name}`);
+        console.log(`טלפון / Phone: ${newAppointment.phone}`);
+        console.log(`אימייל / Email: ${newAppointment.email}`);
+        console.log(`שירות / Service: ${newAppointment.service}`);
+        console.log(`תאריך / Date: ${newAppointment.date}`);
+        console.log(`שעה / Time: ${newAppointment.time}`);
+        console.log(`הערות / Notes: ${newAppointment.notes || 'ללא / None'}`);
+        console.log('================================\n');
+        
+        // TODO: Send SMS/Email notification to 053-5594136
+        // You can integrate services like:
+        // - Twilio for SMS
+        // - SendGrid/Mailgun for Email
+        // - WhatsApp Business API
+        
         res.status(201).json({ 
             success: true, 
             message: 'Appointment created successfully',
