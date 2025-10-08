@@ -36,10 +36,24 @@ app.post('/api/appointments', async (req, res) => {
         const newAppointment = {
             id: Date.now().toString(),
             ...req.body,
+            status: 'pending',
             createdAt: new Date().toISOString()
         };
         
+        // Check if time slot is available
         const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
+        const conflict = appointments.find(apt => 
+            apt.date === newAppointment.date && 
+            apt.time === newAppointment.time &&
+            apt.status !== 'cancelled'
+        );
+        
+        if (conflict) {
+            return res.status(400).json({ 
+                error: 'השעה הזו כבר תפוסה. אנא בחר שעה אחרת.' 
+            });
+        }
+        
         appointments.push(newAppointment);
         fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
         
@@ -87,6 +101,61 @@ app.get('/api/appointments/:id', (req, res) => {
         res.json(appointment);
     } catch (error) {
         res.status(500).json({ error: 'Failed to read appointment' });
+    }
+});
+
+// Update appointment status
+app.put('/api/appointments/:id/status', (req, res) => {
+    try {
+        const { status } = req.body;
+        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
+        const appointment = appointments.find(apt => apt.id === req.params.id);
+        
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found' });
+        }
+        
+        appointment.status = status;
+        appointment.updatedAt = new Date().toISOString();
+        
+        fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
+        
+        console.log(`Appointment ${req.params.id} status updated to: ${status}`);
+        res.json({ success: true, appointment });
+    } catch (error) {
+        console.error('Error updating appointment status:', error);
+        res.status(500).json({ error: 'Failed to update appointment status' });
+    }
+});
+
+// Get available time slots for a specific date
+app.get('/api/available-slots/:date', (req, res) => {
+    try {
+        const requestedDate = req.params.date;
+        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
+        
+        // All possible time slots
+        const allSlots = [
+            '09:00', '10:00', '11:00', '12:00', '13:00',
+            '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'
+        ];
+        
+        // Get booked slots for this date (excluding cancelled)
+        const bookedSlots = appointments
+            .filter(apt => apt.date === requestedDate && apt.status !== 'cancelled')
+            .map(apt => apt.time);
+        
+        // Return available slots
+        const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
+        
+        res.json({ 
+            date: requestedDate,
+            availableSlots,
+            bookedSlots
+        });
+    } catch (error) {
+        console.error('Error getting available slots:', error);
+        res.status(500).json({ error: 'Failed to get available slots' });
     }
 });
 

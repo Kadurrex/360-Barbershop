@@ -6,7 +6,54 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set default date to today
     dateInput.value = today;
+    
+    // Load available slots for today
+    loadAvailableSlots(today);
+    
+    // When date changes, update available slots
+    dateInput.addEventListener('change', function() {
+        loadAvailableSlots(this.value);
+    });
 });
+
+// Load available time slots for selected date
+async function loadAvailableSlots(date) {
+    try {
+        const response = await fetch(`/api/available-slots/${date}`);
+        const data = await response.json();
+        
+        const timeSelect = document.getElementById('time');
+        const currentValue = timeSelect.value;
+        
+        // Clear existing options
+        timeSelect.innerHTML = '<option value="">בחר שעה</option>';
+        
+        if (data.availableSlots.length === 0) {
+            timeSelect.innerHTML += '<option value="" disabled>אין שעות פנויות ליום זה</option>';
+            return;
+        }
+        
+        // Add available slots
+        data.availableSlots.forEach(slot => {
+            const option = document.createElement('option');
+            option.value = slot;
+            option.textContent = slot;
+            timeSelect.appendChild(option);
+        });
+        
+        // Restore previous value if still available
+        if (data.availableSlots.includes(currentValue)) {
+            timeSelect.value = currentValue;
+        }
+        
+        // Show message if some slots are booked
+        if (data.bookedSlots.length > 0) {
+            console.log(`${data.bookedSlots.length} time slots already booked for ${date}`);
+        }
+    } catch (error) {
+        console.error('Error loading available slots:', error);
+    }
+}
 
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -25,6 +72,11 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Form submission handling
 document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.textContent = 'שולח...';
+    submitButton.disabled = true;
     
     const formData = {
         name: document.getElementById('name').value,
@@ -50,6 +102,8 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
             body: JSON.stringify(formData)
         });
         
+        const result = await response.json();
+        
         if (response.ok) {
             // Hide form and show success message
             document.getElementById('appointmentForm').style.display = 'none';
@@ -60,17 +114,25 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
                 document.getElementById('appointmentForm').reset();
                 document.getElementById('appointmentForm').style.display = 'block';
                 document.getElementById('successMessage').style.display = 'none';
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
                 
-                // Reset date to today
+                // Reset date to today and reload slots
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('date').value = today;
+                loadAvailableSlots(today);
             }, 5000);
         } else {
-            alert('אירעה שגיאה בשליחת הטופס. אנא נסה שוב.');
+            // Show error message
+            alert(result.error || 'אירעה שגיאה בשליחת הטופס. אנא נסה שוב.');
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
         }
     } catch (error) {
         console.error('Error:', error);
         alert('אירעה שגיאה בשליחת הטופס. אנא נסה שוב.');
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
     }
 });
 
