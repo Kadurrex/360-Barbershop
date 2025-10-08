@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const cron = require('node-cron');
-const { sendOwnerNotification, sendClientConfirmation, sendClientReminder } = require('./whatsapp-service');
+const { sendOwnerNotification, sendClientConfirmation, sendClientReminder, sendUnapprovalNotification } = require('./whatsapp-service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -156,6 +156,16 @@ app.put('/api/appointments/:id/status', async (req, res) => {
                 console.log(`✅ Confirmation sent to client: ${appointment.name}`);
             } catch (error) {
                 console.error('Error sending confirmation:', error);
+            }
+        }
+        
+        // Send notification to client when unapproved
+        if (status === 'pending' && oldStatus === 'approved') {
+            try {
+                const unapprovalResult = await sendUnapprovalNotification(appointment);
+                console.log(`⚠️  Unapproval notification sent to client: ${appointment.name}`);
+            } catch (error) {
+                console.error('Error sending unapproval notification:', error);
             }
         }
         

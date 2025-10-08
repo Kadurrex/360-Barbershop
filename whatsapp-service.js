@@ -146,6 +146,46 @@ function getServiceName(serviceCode) {
 }
 
 /**
+ * Send WhatsApp notification when appointment is unapproved
+ */
+async function sendUnapprovalNotification(appointmentData) {
+    let clientPhone = appointmentData.phone.replace(/^0/, '972').replace(/\D/g, '');
+    
+    const message = `
+⚠️ *עדכון לגבי התור שלך*
+
+שלום ${appointmentData.name},
+
+התור שלך במספרת 360 מעלות בוטל מאישור.
+
+📅 *תאריך:* ${formatDateHebrew(appointmentData.date)}
+🕐 *שעה:* ${appointmentData.time}
+
+ייתכן שנצטרך לשנות את המועד. נחזור אליך בהקדם!
+
+📞 *לשאלות:* 053-5594136
+
+סליחה על אי הנוחות 🙏
+    `.trim();
+
+    const whatsappLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(message)}`;
+    
+    console.log('\n⚠️  שליחת ביטול אישור ללקוח...');
+    console.log(`שם: ${appointmentData.name}`);
+    console.log(`טלפון: ${appointmentData.phone}`);
+    console.log(`קישור: ${whatsappLink}\n`);
+    
+    try {
+        exec(`start ${whatsappLink}`);
+        console.log('✅ Unapproval notification link opened!\n');
+        return { success: true, link: whatsappLink };
+    } catch (error) {
+        console.log('ℹ️  Manual notification needed\n');
+        return { success: false, link: whatsappLink };
+    }
+}
+
+/**
  * Format date in Hebrew
  */
 function formatDateHebrew(dateString) {
@@ -162,5 +202,6 @@ function formatDateHebrew(dateString) {
 module.exports = {
     sendOwnerNotification,
     sendClientConfirmation,
-    sendClientReminder
+    sendClientReminder,
+    sendUnapprovalNotification
 };
