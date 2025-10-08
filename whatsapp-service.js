@@ -68,7 +68,7 @@ async function sendClientConfirmation(appointmentData) {
 💇 *שירות:* ${getServiceName(appointmentData.service)}
 
 📍 *כתובת:* ויצמן 1, כפר סבא
-📞 *טלפון:* 09-7736351
+📞 *טלפון:* 053-5594136
 
 ⏰ תקבל תזכורת חצי שעה לפני התור.
 
@@ -108,7 +108,7 @@ async function sendClientReminder(appointmentData) {
 💇 *שירות:* ${getServiceName(appointmentData.service)}
 
 📍 *כתובת:* ויצמן 1, כפר סבא
-📞 *טלפון:* 09-7736351
+📞 *טלפון:* 053-5594136
 
 אנחנו מחכים לך! 💈
     `.trim();
