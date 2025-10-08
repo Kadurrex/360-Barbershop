@@ -130,7 +130,8 @@ function displayAppointments() {
             </div>
             ${apt.notes ? `<div style="margin-top: 1rem;"><strong style="color: #f0e68c;">📝 הערות:</strong> ${apt.notes}</div>` : ''}
             <div class="appointment-actions">
-                ${apt.status !== 'approved' ? `<button class="btn btn-approve" onclick="updateStatus('${apt.id}', 'approved')">אשר תור</button>` : ''}
+                ${apt.status === 'pending' ? `<button class="btn btn-approve" onclick="updateStatus('${apt.id}', 'approved')">אשר תור</button>` : ''}
+                ${apt.status === 'approved' ? `<button class="btn btn-pending" onclick="updateStatus('${apt.id}', 'pending')">בטל אישור</button>` : ''}
                 ${apt.status !== 'cancelled' ? `<button class="btn btn-cancel" onclick="updateStatus('${apt.id}', 'cancelled')">בטל תור</button>` : ''}
                 <button class="btn btn-delete" onclick="deleteAppointment('${apt.id}')">מחק</button>
             </div>

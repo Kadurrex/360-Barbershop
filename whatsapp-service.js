@@ -1,18 +1,16 @@
-// WhatsApp Notification Service - SIMPLE VERSION
-// This version just creates a clickable link and shows enhanced console notifications
+// Enhanced WhatsApp Notification Service
+// Supports: Owner notifications, Client confirmations, Reminders
 
 const axios = require('axios');
+const { exec } = require('child_process');
 
 // Your phone number: 0535594136
-const PHONE_NUMBER = '972535594136'; // Format: 972 (Israel) + your number without leading 0
+const OWNER_PHONE = '972535594136';
 
 /**
- * Send WhatsApp notification - AUTOMATIC VERSION
- * This creates a WhatsApp link that you can click to open directly
+ * Send WhatsApp notification to owner about new appointment
  */
-
-async function sendWhatsAppNotification(appointmentData) {
-    // Format the message
+async function sendOwnerNotification(appointmentData) {
     const message = `
 🎉 *תור חדש במספרה 360!*
 
@@ -25,10 +23,8 @@ async function sendWhatsAppNotification(appointmentData) {
 📝 *הערות:* ${appointmentData.notes || 'ללא'}
     `.trim();
 
-    // Create WhatsApp link
-    const whatsappLink = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+    const whatsappLink = `https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(message)}`;
     
-    // Enhanced console notification
     console.log('\n╔════════════════════════════════════════╗');
     console.log('║     🎉 תור חדש נקבע! NEW BOOKING!    ║');
     console.log('╚════════════════════════════════════════╝\n');
@@ -39,32 +35,99 @@ async function sendWhatsAppNotification(appointmentData) {
     console.log('📅 תאריך / Date:', appointmentData.date);
     console.log('🕐 שעה / Time:', appointmentData.time);
     console.log('📝 הערות / Notes:', appointmentData.notes || 'ללא / None');
-    console.log('\n📱 WhatsApp Link (click to send):');
+    console.log('\n📱 WhatsApp Link:');
     console.log(whatsappLink);
-    console.log('\n╔════════════════════════════════════════╗');
-    console.log('║  Copy the link above and paste in     ║');
-    console.log('║  your browser to send via WhatsApp!   ║');
-    console.log('╚════════════════════════════════════════╝\n');
+    console.log('\n╚════════════════════════════════════════╝\n');
     
-    // Try to open in browser automatically (Windows)
     try {
-        const { exec } = require('child_process');
         exec(`start ${whatsappLink}`);
-        console.log('✅ WhatsApp link opened in browser!\n');
+        console.log('✅ WhatsApp link opened!\n');
     } catch (error) {
-        console.log('ℹ️  Please copy and paste the link above to send via WhatsApp\n');
+        console.log('ℹ️  Copy and paste the link above\n');
     }
     
     return true;
 }
 
 /**
- * Alternative: Send via direct WhatsApp Web link (opens on user's device)
+ * Send WhatsApp confirmation to client after approval
  */
-function getWhatsAppLink(appointmentData) {
-    const message = `תור חדש: ${appointmentData.name}, ${appointmentData.phone}, ${appointmentData.date} ${appointmentData.time}`;
-    const encodedMessage = encodeURIComponent(message);
-    return `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
+async function sendClientConfirmation(appointmentData) {
+    // Format Israeli phone number (remove leading 0, add 972)
+    let clientPhone = appointmentData.phone.replace(/^0/, '972').replace(/\D/g, '');
+    
+    const message = `
+✅ *התור שלך אושר!*
+
+שלום ${appointmentData.name}! 👋
+
+התור שלך במספרת 360 מעלות אושר בהצלחה!
+
+📅 *תאריך:* ${formatDateHebrew(appointmentData.date)}
+🕐 *שעה:* ${appointmentData.time}
+💇 *שירות:* ${getServiceName(appointmentData.service)}
+
+📍 *כתובת:* ויצמן 1, כפר סבא
+📞 *טלפון:* 09-7736351
+
+⏰ תקבל תזכורת חצי שעה לפני התור.
+
+נתראה בקרוב! 💈
+    `.trim();
+
+    const whatsappLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(message)}`;
+    
+    console.log('\n📱 שליחת אישור ללקוח...');
+    console.log(`טלפון: ${appointmentData.phone}`);
+    console.log(`קישור: ${whatsappLink}\n`);
+    
+    try {
+        exec(`start ${whatsappLink}`);
+        console.log('✅ Confirmation link opened!\n');
+        return { success: true, link: whatsappLink };
+    } catch (error) {
+        console.log('ℹ️  Manual confirmation needed\n');
+        return { success: false, link: whatsappLink };
+    }
+}
+
+/**
+ * Send WhatsApp reminder 30 minutes before appointment
+ */
+async function sendClientReminder(appointmentData) {
+    let clientPhone = appointmentData.phone.replace(/^0/, '972').replace(/\D/g, '');
+    
+    const message = `
+⏰ *תזכורת לתור!*
+
+שלום ${appointmentData.name}! 👋
+
+מזכירים לך שיש לך תור במספרת 360 מעלות *בעוד חצי שעה!*
+
+🕐 *שעה:* ${appointmentData.time}
+💇 *שירות:* ${getServiceName(appointmentData.service)}
+
+📍 *כתובת:* ויצמן 1, כפר סבא
+📞 *טלפון:* 09-7736351
+
+אנחנו מחכים לך! 💈
+    `.trim();
+
+    const whatsappLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(message)}`;
+    
+    console.log('\n⏰ שליחת תזכורת ללקוח...');
+    console.log(`שם: ${appointmentData.name}`);
+    console.log(`שעה: ${appointmentData.time}`);
+    console.log(`קישור: ${whatsappLink}\n`);
+    
+    try {
+        exec(`start ${whatsappLink}`);
+        console.log('✅ Reminder link opened!\n');
+        return { success: true, link: whatsappLink };
+    } catch (error) {
+        console.log('ℹ️  Manual reminder needed\n');
+        return { success: false, link: whatsappLink };
+    }
 }
 
 /**
@@ -82,8 +145,22 @@ function getServiceName(serviceCode) {
     return services[serviceCode] || serviceCode;
 }
 
-module.exports = {
-    sendWhatsAppNotification,
-    getWhatsAppLink
-};
+/**
+ * Format date in Hebrew
+ */
+function formatDateHebrew(dateString) {
+    const date = new Date(dateString);
+    const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    
+    return `יום ${dayName}, ${day}/${month}/${year}`;
+}
 
+module.exports = {
+    sendOwnerNotification,
+    sendClientConfirmation,
+    sendClientReminder
+};

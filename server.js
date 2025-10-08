@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const { sendWhatsAppNotification } = require('./whatsapp-service');
+const cron = require('node-cron');
+const { sendOwnerNotification, sendClientConfirmation, sendClientReminder } = require('./whatsapp-service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,13 +13,43 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
-// Store appointments in a JSON file (in production, you'd use a database)
+// Store appointments in a JSON file
 const APPOINTMENTS_FILE = 'appointments.json';
+const BREAKS_FILE = 'breaks.json';
 
-// Initialize appointments file if it doesn't exist
+// Initialize files if they don't exist
 if (!fs.existsSync(APPOINTMENTS_FILE)) {
     fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify([], null, 2));
 }
+if (!fs.existsSync(BREAKS_FILE)) {
+    fs.writeFileSync(BREAKS_FILE, JSON.stringify([], null, 2));
+}
+
+// Check for upcoming appointments every minute and send reminders
+cron.schedule('* * * * *', () => {
+    try {
+        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
+        const now = new Date();
+        
+        appointments.forEach(apt => {
+            if (apt.status === 'approved' && !apt.reminderSent) {
+                const aptDateTime = new Date(apt.date + 'T' + apt.time);
+                const timeDiff = aptDateTime - now;
+                const minutesDiff = Math.floor(timeDiff / 1000 / 60);
+                
+                // Send reminder 30 minutes before
+                if (minutesDiff === 30) {
+                    sendClientReminder(apt);
+                    apt.reminderSent = true;
+                    fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
+                    console.log(`✅ Reminder sent for appointment: ${apt.name} at ${apt.time}`);
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error in reminder cron job:', error);
+    }
+});
 
 // Get all appointments
 app.get('/api/appointments', (req, res) => {
@@ -69,13 +100,8 @@ app.post('/api/appointments', async (req, res) => {
         console.log(`הערות / Notes: ${newAppointment.notes || 'ללא / None'}`);
         console.log('================================\n');
         
-        // Send WhatsApp notification
-        try {
-            await sendWhatsAppNotification(newAppointment);
-        } catch (error) {
-            console.error('WhatsApp notification error:', error.message);
-            // Don't fail the request if notification fails
-        }
+        // Don't send WhatsApp to owner - just log to console
+        // Owner will see it in the dashboard
         
         res.status(201).json({ 
             success: true, 
@@ -105,7 +131,7 @@ app.get('/api/appointments/:id', (req, res) => {
 });
 
 // Update appointment status
-app.put('/api/appointments/:id/status', (req, res) => {
+app.put('/api/appointments/:id/status', async (req, res) => {
     try {
         const { status } = req.body;
         const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
@@ -115,12 +141,24 @@ app.put('/api/appointments/:id/status', (req, res) => {
             return res.status(404).json({ error: 'Appointment not found' });
         }
         
+        const oldStatus = appointment.status;
         appointment.status = status;
         appointment.updatedAt = new Date().toISOString();
         
         fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
         
-        console.log(`Appointment ${req.params.id} status updated to: ${status}`);
+        console.log(`Appointment ${req.params.id} status updated: ${oldStatus} → ${status}`);
+        
+        // Send confirmation to client when approved
+        if (status === 'approved' && oldStatus !== 'approved') {
+            try {
+                const confirmResult = await sendClientConfirmation(appointment);
+                console.log(`✅ Confirmation sent to client: ${appointment.name}`);
+            } catch (error) {
+                console.error('Error sending confirmation:', error);
+            }
+        }
+        
         res.json({ success: true, appointment });
     } catch (error) {
         console.error('Error updating appointment status:', error);
@@ -133,6 +171,7 @@ app.get('/api/available-slots/:date', (req, res) => {
     try {
         const requestedDate = req.params.date;
         const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
+        const breaks = JSON.parse(fs.readFileSync(BREAKS_FILE, 'utf8'));
         
         // All possible time slots
         const allSlots = [
@@ -145,17 +184,70 @@ app.get('/api/available-slots/:date', (req, res) => {
             .filter(apt => apt.date === requestedDate && apt.status !== 'cancelled')
             .map(apt => apt.time);
         
+        // Get break slots for this date
+        const breakSlots = breaks
+            .filter(brk => brk.date === requestedDate)
+            .flatMap(brk => brk.times);
+        
+        // Combine booked and break slots
+        const unavailableSlots = [...new Set([...bookedSlots, ...breakSlots])];
+        
         // Return available slots
-        const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
+        const availableSlots = allSlots.filter(slot => !unavailableSlots.includes(slot));
         
         res.json({ 
             date: requestedDate,
             availableSlots,
-            bookedSlots
+            bookedSlots,
+            breakSlots
         });
     } catch (error) {
         console.error('Error getting available slots:', error);
         res.status(500).json({ error: 'Failed to get available slots' });
+    }
+});
+
+// Breaks Management API
+// Get all breaks
+app.get('/api/breaks', (req, res) => {
+    try {
+        const breaks = JSON.parse(fs.readFileSync(BREAKS_FILE, 'utf8'));
+        res.json(breaks);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to read breaks' });
+    }
+});
+
+// Add break
+app.post('/api/breaks', (req, res) => {
+    try {
+        const newBreak = {
+            id: Date.now().toString(),
+            ...req.body,
+            createdAt: new Date().toISOString()
+        };
+        
+        const breaks = JSON.parse(fs.readFileSync(BREAKS_FILE, 'utf8'));
+        breaks.push(newBreak);
+        fs.writeFileSync(BREAKS_FILE, JSON.stringify(breaks, null, 2));
+        
+        console.log(`✅ Break added: ${newBreak.date} ${newBreak.times.join(', ')}`);
+        res.status(201).json({ success: true, break: newBreak });
+    } catch (error) {
+        console.error('Error adding break:', error);
+        res.status(500).json({ error: 'Failed to add break' });
+    }
+});
+
+// Delete break
+app.delete('/api/breaks/:id', (req, res) => {
+    try {
+        let breaks = JSON.parse(fs.readFileSync(BREAKS_FILE, 'utf8'));
+        breaks = breaks.filter(brk => brk.id !== req.params.id);
+        fs.writeFileSync(BREAKS_FILE, JSON.stringify(breaks, null, 2));
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete break' });
     }
 });
 
