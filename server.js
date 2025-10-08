@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { sendWhatsAppNotification } = require('./whatsapp-service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,7 +31,7 @@ app.get('/api/appointments', (req, res) => {
 });
 
 // Create new appointment
-app.post('/api/appointments', (req, res) => {
+app.post('/api/appointments', async (req, res) => {
     try {
         const newAppointment = {
             id: Date.now().toString(),
@@ -54,11 +55,13 @@ app.post('/api/appointments', (req, res) => {
         console.log(`הערות / Notes: ${newAppointment.notes || 'ללא / None'}`);
         console.log('================================\n');
         
-        // TODO: Send SMS/Email notification to 053-5594136
-        // You can integrate services like:
-        // - Twilio for SMS
-        // - SendGrid/Mailgun for Email
-        // - WhatsApp Business API
+        // Send WhatsApp notification
+        try {
+            await sendWhatsAppNotification(newAppointment);
+        } catch (error) {
+            console.error('WhatsApp notification error:', error.message);
+            // Don't fail the request if notification fails
+        }
         
         res.status(201).json({ 
             success: true, 

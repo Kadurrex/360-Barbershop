@@ -5,14 +5,14 @@
 }
 
 :root {
-    --primary-color: #c8102e;
-    --secondary-color: #1e3a5f;
-    --accent-color: #ffffff;
+    --primary-color: #d4af37;
+    --secondary-color: #1a1a1a;
+    --accent-color: #f0e68c;
     --text-light: #ffffff;
-    --text-dark: #1e3a5f;
-    --bg-light: #f4f4f4;
-    --bg-dark: #0d1b2a;
-    --gradient: linear-gradient(135deg, #c8102e 0%, #8b0a1f 100%);
+    --text-dark: #333333;
+    --bg-light: #f8f9fa;
+    --bg-dark: #0a0a0a;
+    --gradient: linear-gradient(135deg, #d4af37 0%, #f0e68c 100%);
 }
 
 body {
@@ -34,12 +34,11 @@ body {
     position: fixed;
     top: 0;
     width: 100%;
-    background: rgba(30, 58, 95, 0.98);
+    background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
     z-index: 1000;
     padding: 1rem 0;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-    border-bottom: 3px solid var(--primary-color);
 }
 
 .navbar .container {
@@ -61,7 +60,7 @@ body {
 }
 
 .nav-brand svg {
-    filter: drop-shadow(2px 2px 4px rgba(200, 16, 46, 0.5));
+    filter: drop-shadow(2px 2px 4px rgba(212, 175, 55, 0.5));
 }
 
 .nav-brand svg circle {
@@ -130,7 +129,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%);
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
     overflow: hidden;
 }
 
@@ -142,8 +141,8 @@ body {
     right: 0;
     bottom: 0;
     background-image: 
-        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(200, 16, 46, 0.05) 2px, rgba(200, 16, 46, 0.05) 4px),
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(200, 16, 46, 0.05) 2px, rgba(200, 16, 46, 0.05) 4px);
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(212, 175, 55, 0.03) 2px, rgba(212, 175, 55, 0.03) 4px),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212, 175, 55, 0.03) 2px, rgba(212, 175, 55, 0.03) 4px);
     animation: gridMove 20s linear infinite;
 }
 
@@ -184,7 +183,7 @@ body {
     font-weight: 900;
     color: var(--text-light);
     margin-bottom: 1rem;
-    text-shadow: 2px 2px 20px rgba(200, 16, 46, 0.7);
+    text-shadow: 2px 2px 20px rgba(212, 175, 55, 0.5);
 }
 
 .hero-subtitle {
@@ -192,7 +191,6 @@ body {
     color: var(--accent-color);
     margin-bottom: 2rem;
     font-weight: 300;
-    opacity: 0.9;
 }
 
 .btn-primary {
@@ -210,7 +208,7 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(200, 16, 46, 0.6);
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
 }
 
 /* Sections */
@@ -264,7 +262,7 @@ section {
 
 .service-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 40px rgba(200, 16, 46, 0.3);
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3);
     border-top-color: var(--primary-color);
 }
 
@@ -318,24 +316,14 @@ section {
     cursor: pointer;
 }
 
-.gallery-placeholder {
+.gallery-item img {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #d4af37 0%, #1a1a1a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    object-fit: cover;
     transition: all 0.3s ease;
 }
 
-.gallery-text {
-    color: white;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.gallery-item:hover .gallery-placeholder {
+.gallery-item:hover img {
     transform: scale(1.1);
 }
 
@@ -423,7 +411,7 @@ section {
 .contact-details {
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 2px solid rgba(200, 16, 46, 0.3);
+    border-top: 2px solid rgba(212, 175, 55, 0.3);
 }
 
 .phone-link {
@@ -490,7 +478,7 @@ section {
 .form-group textarea {
     width: 100%;
     padding: 0.8rem;
-    border: 2px solid rgba(200, 16, 46, 0.3);
+    border: 2px solid rgba(212, 175, 55, 0.3);
     border-radius: 8px;
     font-family: 'Heebo', sans-serif;
     font-size: 1rem;
@@ -533,7 +521,7 @@ section {
 
 .btn-submit:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(200, 16, 46, 0.6);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
 }
 
 .success-message {
@@ -585,7 +573,7 @@ section {
 .footer-bottom {
     text-align: center;
     padding-top: 2rem;
-    border-top: 1px solid rgba(200, 16, 46, 0.3);
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
     color: #999;
 }
 
