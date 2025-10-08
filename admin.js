@@ -194,13 +194,7 @@ async function updateStatus(id, status) {
         
         if (response.ok) {
             loadAppointments();
-            
-            // If approved, automatically open Google Calendar
-            if (status === 'approved') {
-                setTimeout(() => {
-                    addToGoogleCalendar(id);
-                }, 1000); // Wait 1 second for appointments to reload
-            }
+            // Calendar is now manual - just click the button if needed
         }
     } catch (error) {
         console.error('Error updating status:', error);
