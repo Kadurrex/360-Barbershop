@@ -92,6 +92,20 @@ async function sendClientConfirmation(appointmentData) {
     console.log(`טלפון מעובד: ${clientPhone}`);
     console.log(`קישור: ${whatsappLink}\n`);
     
+    // For production, we'll use a different approach
+    // The link is ready to be used - you can copy it from the logs
+    console.log('📋 COPY THIS LINK TO SEND WHATSAPP MESSAGE:');
+    console.log('='.repeat(80));
+    console.log(whatsappLink);
+    console.log('='.repeat(80));
+    
+    // Also try to send via WhatsApp Web API (alternative method)
+    try {
+        await sendWhatsAppViaWebAPI(clientPhone, message);
+    } catch (webError) {
+        console.log('ℹ️  Web API method failed, use the link above');
+    }
+    
     console.log('✅ Confirmation link generated!\n');
     return { success: true, link: whatsappLink };
 }
@@ -210,6 +224,28 @@ function formatDateHebrew(dateString) {
     const year = date.getFullYear();
     
     return `יום ${dayName}, ${day}/${month}/${year}`;
+}
+
+/**
+ * Alternative WhatsApp sending method using web API
+ */
+async function sendWhatsAppViaWebAPI(phoneNumber, message) {
+    try {
+        // This is a fallback method - you can implement your own WhatsApp API here
+        // For now, we'll just log that this method was attempted
+        console.log(`🔄 Attempting WhatsApp Web API for ${phoneNumber}`);
+        console.log(`📝 Message: ${message.substring(0, 100)}...`);
+        
+        // You could integrate with services like:
+        // - WhatsApp Business API
+        // - Twilio WhatsApp API
+        // - Other WhatsApp messaging services
+        
+        return { success: true, method: 'web_api' };
+    } catch (error) {
+        console.error('WhatsApp Web API error:', error);
+        throw error;
+    }
 }
 
 module.exports = {

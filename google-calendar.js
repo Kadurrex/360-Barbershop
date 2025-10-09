@@ -31,9 +31,12 @@ async function addEventToCalendar(appointment) {
         const auth = getAuth();
         const calendar = google.calendar({ version: 'v3', auth });
 
-        // Format the date and time for Google Calendar
-        const startDateTime = new Date(appointment.date + 'T' + appointment.time);
+        // Format the date and time for Google Calendar (Israeli time)
+        const dateTimeString = `${appointment.date}T${appointment.time}:00`;
+        const startDateTime = new Date(dateTimeString + '+03:00'); // Israeli timezone offset
         const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1 hour duration
+
+        console.log(`Creating calendar event for ${appointment.name} at ${appointment.date} ${appointment.time} Israel time`);
 
         const event = {
             summary: `תספורת: ${appointment.name}`,
