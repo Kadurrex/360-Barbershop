@@ -1,11 +1,17 @@
 // Admin Dashboard JavaScript
-const ADMIN_PASSWORD = '360admin'; // Change this to your password!
+const ADMIN_PASSWORD = '360admin';
 let appointments = [];
 let currentFilter = 'all';
+let authToken = '';
 
 // Check if already logged in
 if (localStorage.getItem('adminLoggedIn') === 'true') {
-    showDashboard();
+    authToken = localStorage.getItem('authToken');
+    if (authToken) {
+        showDashboard();
+    } else {
+        logout(); // Invalid state, force logout
+    }
 }
 
 // Login form handler
@@ -14,7 +20,9 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const password = document.getElementById('password').value;
     
     if (password === ADMIN_PASSWORD) {
+        authToken = `Bearer ${ADMIN_PASSWORD}`;
         localStorage.setItem('adminLoggedIn', 'true');
+        localStorage.setItem('authToken', authToken);
         showDashboard();
     } else {
         document.getElementById('loginError').style.display = 'block';
@@ -31,19 +39,30 @@ function showDashboard() {
 
 function logout() {
     localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('authToken');
     location.reload();
 }
 
 async function loadAppointments() {
     try {
-        const response = await fetch('/api/appointments');
+        const response = await fetch('/api/appointments', {
+            headers: {
+                'Authorization': authToken
+            }
+        });
+        
+        if (response.status === 401) {
+            logout();
+            return;
+        }
+        
         appointments = await response.json();
         
-        // Sort by date and time (newest first)
+        // Sort by creation timestamp (newest first)
         appointments.sort((a, b) => {
-            const dateA = new Date(a.date + ' ' + a.time);
-            const dateB = new Date(b.date + ' ' + b.time);
-            return dateB - dateA;
+            const timeA = parseInt(a.id) || 0;
+            const timeB = parseInt(b.id) || 0;
+            return timeB - timeA;
         });
         
         updateStats();
@@ -99,7 +118,7 @@ function displayAppointments() {
     }
     
     container.innerHTML = filteredAppts.map(apt => `
-        <div class="appointment-card">
+        <div class="appointment-card" data-id="${apt.id}">
             <div class="appointment-header">
                 <h4>${apt.name}</h4>
                 <span class="appointment-status status-${apt.status || 'pending'}">
@@ -110,10 +129,6 @@ function displayAppointments() {
                 <div class="detail-item">
                     <strong>📞 טלפון:</strong>
                     <span>${apt.phone}</span>
-                </div>
-                <div class="detail-item">
-                    <strong>📧 אימייל:</strong>
-                    <span>${apt.email}</span>
                 </div>
                 <div class="detail-item">
                     <strong>💇 שירות:</strong>
@@ -133,7 +148,6 @@ function displayAppointments() {
                 ${apt.status === 'pending' ? `<button class="btn btn-approve" onclick="updateStatus('${apt.id}', 'approved')">אשר תור</button>` : ''}
                 ${apt.status === 'approved' ? `<button class="btn btn-pending" onclick="updateStatus('${apt.id}', 'pending')">בטל אישור</button>` : ''}
                 ${apt.status !== 'cancelled' ? `<button class="btn btn-cancel" onclick="updateStatus('${apt.id}', 'cancelled')">בטל תור</button>` : ''}
-                <button class="btn btn-calendar" onclick="addToGoogleCalendar('${apt.id}')">📅 הוסף ליומן</button>
                 <button class="btn btn-delete" onclick="deleteAppointment('${apt.id}')">מחק</button>
             </div>
         </div>
@@ -187,14 +201,19 @@ async function updateStatus(id, status) {
         const response = await fetch(`/api/appointments/${id}/status`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': authToken
             },
             body: JSON.stringify({ status })
         });
         
+        if (response.status === 401) {
+            logout();
+            return;
+        }
+        
         if (response.ok) {
             loadAppointments();
-            // Calendar is now manual - just click the button if needed
         }
     } catch (error) {
         console.error('Error updating status:', error);
@@ -209,8 +228,16 @@ async function deleteAppointment(id) {
     
     try {
         const response = await fetch(`/api/appointments/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': authToken
+            }
         });
+        
+        if (response.status === 401) {
+            logout();
+            return;
+        }
         
         if (response.ok) {
             loadAppointments();
@@ -220,41 +247,3 @@ async function deleteAppointment(id) {
         alert('שגיאה במחיקת התור');
     }
 }
-
-function addToGoogleCalendar(id) {
-    const appointment = appointments.find(apt => apt.id === id);
-    if (!appointment) return;
-    
-    // Create event details
-    const title = `תור במספרה 360 - ${appointment.name}`;
-    const description = `
-שירות: ${getServiceName(appointment.service)}
-לקוח: ${appointment.name}
-טלפון: ${appointment.phone}
-אימייל: ${appointment.email}
-הערות: ${appointment.notes || 'ללא'}
-    `.trim();
-    
-    // Parse date and time
-    const startDateTime = new Date(appointment.date + 'T' + appointment.time);
-    const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // +1 hour
-    
-    // Format for Google Calendar
-    const formatGoogleDate = (date) => {
-        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    };
-    
-    const startFormatted = formatGoogleDate(startDateTime);
-    const endFormatted = formatGoogleDate(endDateTime);
-    
-    // Create Google Calendar URL
-    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-        `&text=${encodeURIComponent(title)}` +
-        `&details=${encodeURIComponent(description)}` +
-        `&location=${encodeURIComponent('ויצמן 1, כפר סבא')}` +
-        `&dates=${startFormatted}/${endFormatted}`;
-    
-    // Open in new tab
-    window.open(calendarUrl, '_blank');
-}
-

@@ -4,18 +4,24 @@ const path = require('path');
 const fs = require('fs');
 const cron = require('node-cron');
 const { sendOwnerNotification, sendClientConfirmation, sendClientReminder, sendUnapprovalNotification } = require('./whatsapp-service');
+const { addEventToCalendar } = require('./google-calendar');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '360admin';
+const OWNER_PHONE = process.env.OWNER_PHONE || '0535594136';
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static('.'));
+// Create secure data directory
+const DATA_DIR = path.join(__dirname, 'secure_data');
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR);
+}
 
-// Store appointments in a JSON file
-const APPOINTMENTS_FILE = 'appointments.json';
-const BREAKS_FILE = 'breaks.json';
+// Store files in secure directory
+const APPOINTMENTS_FILE = path.join(DATA_DIR, 'appointments.json');
+const BREAKS_FILE = path.join(DATA_DIR, 'breaks.json');
+const CREDENTIALS_FILE = path.join(DATA_DIR, 'credentials.json');
+const TOKEN_FILE = path.join(DATA_DIR, 'token.json');
 
 // Initialize files if they don't exist
 if (!fs.existsSync(APPOINTMENTS_FILE)) {
@@ -24,6 +30,34 @@ if (!fs.existsSync(APPOINTMENTS_FILE)) {
 if (!fs.existsSync(BREAKS_FILE)) {
     fs.writeFileSync(BREAKS_FILE, JSON.stringify([], null, 2));
 }
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Serve static files with security headers
+app.use(express.static('.', {
+    setHeaders: (res, path) => {
+        // Don't serve files from secure_data directory
+        if (path.includes('secure_data')) {
+            res.status(403).end();
+            return;
+        }
+        // Add security headers
+        res.set('X-Content-Type-Options', 'nosniff');
+        res.set('X-Frame-Options', 'DENY');
+        res.set('X-XSS-Protection', '1; mode=block');
+    }
+}));
+
+// Authentication middleware for admin routes
+const authenticateAdmin = (req, res, next) => {
+    const token = req.headers.authorization;
+    if (!token || token !== \`Bearer \${ADMIN_PASSWORD}\`) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    next();
+};
 
 // Check for upcoming appointments every minute and send reminders
 cron.schedule('* * * * *', () => {
@@ -37,8 +71,8 @@ cron.schedule('* * * * *', () => {
                 const timeDiff = aptDateTime - now;
                 const minutesDiff = Math.floor(timeDiff / 1000 / 60);
                 
-                // Send reminder between 13-17 minutes before (TESTING MODE - change back to 25-35 later!)
-                if (minutesDiff >= 13 && minutesDiff <= 17) {
+                // Send reminder between 25-35 minutes before
+                if (minutesDiff >= 25 && minutesDiff <= 35) {
                     sendClientReminder(apt);
                     apt.reminderSent = true;
                     fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
@@ -51,17 +85,7 @@ cron.schedule('* * * * *', () => {
     }
 });
 
-// Get all appointments
-app.get('/api/appointments', (req, res) => {
-    try {
-        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
-        res.json(appointments);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to read appointments' });
-    }
-});
-
-// Create new appointment
+// Public routes
 app.post('/api/appointments', async (req, res) => {
     try {
         const newAppointment = {
@@ -93,15 +117,11 @@ app.post('/api/appointments', async (req, res) => {
         console.log('================================');
         console.log(`שם / Name: ${newAppointment.name}`);
         console.log(`טלפון / Phone: ${newAppointment.phone}`);
-        console.log(`אימייל / Email: ${newAppointment.email}`);
         console.log(`שירות / Service: ${newAppointment.service}`);
         console.log(`תאריך / Date: ${newAppointment.date}`);
         console.log(`שעה / Time: ${newAppointment.time}`);
         console.log(`הערות / Notes: ${newAppointment.notes || 'ללא / None'}`);
         console.log('================================\n');
-        
-        // Don't send WhatsApp to owner - just log to console
-        // Owner will see it in the dashboard
         
         res.status(201).json({ 
             success: true, 
@@ -111,68 +131,6 @@ app.post('/api/appointments', async (req, res) => {
     } catch (error) {
         console.error('Error creating appointment:', error);
         res.status(500).json({ error: 'Failed to create appointment' });
-    }
-});
-
-// Get appointment by ID
-app.get('/api/appointments/:id', (req, res) => {
-    try {
-        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
-        const appointment = appointments.find(apt => apt.id === req.params.id);
-        
-        if (!appointment) {
-            return res.status(404).json({ error: 'Appointment not found' });
-        }
-        
-        res.json(appointment);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to read appointment' });
-    }
-});
-
-// Update appointment status
-app.put('/api/appointments/:id/status', async (req, res) => {
-    try {
-        const { status } = req.body;
-        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
-        const appointment = appointments.find(apt => apt.id === req.params.id);
-        
-        if (!appointment) {
-            return res.status(404).json({ error: 'Appointment not found' });
-        }
-        
-        const oldStatus = appointment.status;
-        appointment.status = status;
-        appointment.updatedAt = new Date().toISOString();
-        
-        fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
-        
-        console.log(`Appointment ${req.params.id} status updated: ${oldStatus} → ${status}`);
-        
-        // Send confirmation to client when approved
-        if (status === 'approved' && oldStatus !== 'approved') {
-            try {
-                const confirmResult = await sendClientConfirmation(appointment);
-                console.log(`✅ Confirmation sent to client: ${appointment.name}`);
-            } catch (error) {
-                console.error('Error sending confirmation:', error);
-            }
-        }
-        
-        // Send notification to client when unapproved
-        if (status === 'pending' && oldStatus === 'approved') {
-            try {
-                const unapprovalResult = await sendUnapprovalNotification(appointment);
-                console.log(`⚠️  Unapproval notification sent to client: ${appointment.name}`);
-            } catch (error) {
-                console.error('Error sending unapproval notification:', error);
-            }
-        }
-        
-        res.json({ success: true, appointment });
-    } catch (error) {
-        console.error('Error updating appointment status:', error);
-        res.status(500).json({ error: 'Failed to update appointment status' });
     }
 });
 
@@ -207,9 +165,7 @@ app.get('/api/available-slots/:date', (req, res) => {
         
         res.json({ 
             date: requestedDate,
-            availableSlots,
-            bookedSlots,
-            breakSlots
+            availableSlots
         });
     } catch (error) {
         console.error('Error getting available slots:', error);
@@ -217,52 +173,86 @@ app.get('/api/available-slots/:date', (req, res) => {
     }
 });
 
-// Breaks Management API
-// Get all breaks
-app.get('/api/breaks', (req, res) => {
+// Protected admin routes
+app.get('/api/appointments', authenticateAdmin, (req, res) => {
     try {
-        const breaks = JSON.parse(fs.readFileSync(BREAKS_FILE, 'utf8'));
-        res.json(breaks);
+        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
+        res.json(appointments);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to read breaks' });
+        res.status(500).json({ error: 'Failed to read appointments' });
     }
 });
 
-// Add break
-app.post('/api/breaks', (req, res) => {
+app.get('/api/appointments/:id', authenticateAdmin, (req, res) => {
     try {
-        const newBreak = {
-            id: Date.now().toString(),
-            ...req.body,
-            createdAt: new Date().toISOString()
-        };
+        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
+        const appointment = appointments.find(apt => apt.id === req.params.id);
         
-        const breaks = JSON.parse(fs.readFileSync(BREAKS_FILE, 'utf8'));
-        breaks.push(newBreak);
-        fs.writeFileSync(BREAKS_FILE, JSON.stringify(breaks, null, 2));
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found' });
+        }
         
-        console.log(`✅ Break added: ${newBreak.date} ${newBreak.times.join(', ')}`);
-        res.status(201).json({ success: true, break: newBreak });
+        res.json(appointment);
     } catch (error) {
-        console.error('Error adding break:', error);
-        res.status(500).json({ error: 'Failed to add break' });
+        res.status(500).json({ error: 'Failed to read appointment' });
     }
 });
 
-// Delete break
-app.delete('/api/breaks/:id', (req, res) => {
+app.put('/api/appointments/:id/status', authenticateAdmin, async (req, res) => {
     try {
-        let breaks = JSON.parse(fs.readFileSync(BREAKS_FILE, 'utf8'));
-        breaks = breaks.filter(brk => brk.id !== req.params.id);
-        fs.writeFileSync(BREAKS_FILE, JSON.stringify(breaks, null, 2));
-        res.json({ success: true });
+        const { status } = req.body;
+        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
+        const appointment = appointments.find(apt => apt.id === req.params.id);
+        
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found' });
+        }
+        
+        const oldStatus = appointment.status;
+        appointment.status = status;
+        appointment.updatedAt = new Date().toISOString();
+        
+        fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
+        
+        console.log(`Appointment ${req.params.id} status updated: ${oldStatus} → ${status}`);
+        
+        // Send confirmation to client when approved
+        if (status === 'approved' && oldStatus !== 'approved') {
+            try {
+                // Send WhatsApp confirmation
+                const confirmResult = await sendClientConfirmation(appointment);
+                console.log(`✅ Confirmation sent to client: ${appointment.name}`);
+                
+                // Add to Google Calendar
+                try {
+                    await addEventToCalendar(appointment);
+                    console.log(`✅ Added to Google Calendar: ${appointment.name}`);
+                } catch (calendarError) {
+                    console.error('Error adding to Google Calendar:', calendarError);
+                }
+            } catch (error) {
+                console.error('Error sending confirmation:', error);
+            }
+        }
+        
+        // Send notification to client when unapproved
+        if (status === 'pending' && oldStatus === 'approved') {
+            try {
+                const unapprovalResult = await sendUnapprovalNotification(appointment);
+                console.log(`⚠️  Unapproval notification sent to client: ${appointment.name}`);
+            } catch (error) {
+                console.error('Error sending unapproval notification:', error);
+            }
+        }
+        
+        res.json({ success: true, appointment });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to delete break' });
+        console.error('Error updating appointment status:', error);
+        res.status(500).json({ error: 'Failed to update appointment status' });
     }
 });
 
-// Delete appointment
-app.delete('/api/appointments/:id', (req, res) => {
+app.delete('/api/appointments/:id', authenticateAdmin, (req, res) => {
     try {
         let appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
         const initialLength = appointments.length;
@@ -294,4 +284,3 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Access the website at: http://localhost:${PORT}`);
 });
-

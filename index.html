@@ -13,6 +13,11 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
+            <button class="menu-toggle" aria-label="תפריט">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+            </button>
             <div class="nav-brand">
                 <svg width="50" height="50" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="45" fill="none" stroke="#d4af37" stroke-width="3"/>
@@ -227,10 +232,6 @@
                         <input type="tel" id="phone" name="phone" required placeholder="050-1234567">
                     </div>
                     <div class="form-group">
-                        <label for="email">אימייל</label>
-                        <input type="email" id="email" name="email" required placeholder="example@email.com">
-                    </div>
-                    <div class="form-group">
                         <label for="service">בחר שירות</label>
                         <select id="service" name="service" required>
                             <option value="">בחר שירות</option>
@@ -267,7 +268,7 @@
                         <label for="notes">הערות</label>
                         <textarea id="notes" name="notes" rows="4" placeholder="הערות נוספות (אופציונלי)"></textarea>
                     </div>
-                    <button type="submit" class="btn-submit">שלח בקשה</button>
+                    <button type="submit" class="btn-submit">שלח</button>
                 </form>
                 <div id="successMessage" class="success-message" style="display: none;">
                     <div class="success-icon">

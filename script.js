@@ -1,4 +1,29 @@
 // Set minimum date to today
+// Mobile Menu Toggle
+const menuToggle = document.querySelector('.menu-toggle');
+const navMenu = document.querySelector('.nav-menu');
+
+menuToggle.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+    menuToggle.classList.toggle('active');
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-menu') && !e.target.closest('.menu-toggle')) {
+        navMenu.classList.remove('active');
+        menuToggle.classList.remove('active');
+    }
+});
+
+// Close menu when clicking a link
+document.querySelectorAll('.nav-menu a').forEach(link => {
+    link.addEventListener('click', () => {
+        navMenu.classList.remove('active');
+        menuToggle.classList.remove('active');
+    });
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('date');
     const today = new Date().toISOString().split('T')[0];
@@ -81,7 +106,6 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
     const formData = {
         name: document.getElementById('name').value,
         phone: document.getElementById('phone').value,
-        email: document.getElementById('email').value,
         service: document.getElementById('service').value,
         date: document.getElementById('date').value,
         time: document.getElementById('time').value,

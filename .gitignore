@@ -1,6 +1,26 @@
+# Dependencies
 node_modules/
-*.log
-.env
-.DS_Store
-appointments.json
 
+# Environment variables
+.env
+
+# Secure data
+secure_data/
+credentials.json
+token.json
+appointments.json
+breaks.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
