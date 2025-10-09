@@ -4,8 +4,8 @@
 const axios = require('axios');
 const { exec } = require('child_process');
 
-// Your phone number: 0535594136
-const OWNER_PHONE = '972535594136';
+// Get phone number from environment variable
+const OWNER_PHONE = process.env.OWNER_PHONE || '972535594136';
 
 /**
  * Send WhatsApp notification to owner about new appointment
