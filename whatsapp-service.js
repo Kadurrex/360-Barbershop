@@ -81,14 +81,8 @@ async function sendClientConfirmation(appointmentData) {
     console.log(`טלפון: ${appointmentData.phone}`);
     console.log(`קישור: ${whatsappLink}\n`);
     
-    try {
-        exec(`start ${whatsappLink}`);
-        console.log('✅ Confirmation link opened!\n');
-        return { success: true, link: whatsappLink };
-    } catch (error) {
-        console.log('ℹ️  Manual confirmation needed\n');
-        return { success: false, link: whatsappLink };
-    }
+    console.log('✅ Confirmation link generated!\n');
+    return { success: true, link: whatsappLink };
 }
 
 /**
@@ -120,14 +114,8 @@ async function sendClientReminder(appointmentData) {
     console.log(`שעה: ${appointmentData.time}`);
     console.log(`קישור: ${whatsappLink}\n`);
     
-    try {
-        exec(`start ${whatsappLink}`);
-        console.log('✅ Reminder link opened!\n');
-        return { success: true, link: whatsappLink };
-    } catch (error) {
-        console.log('ℹ️  Manual reminder needed\n');
-        return { success: false, link: whatsappLink };
-    }
+    console.log('✅ Reminder link generated!\n');
+    return { success: true, link: whatsappLink };
 }
 
 /**
@@ -175,14 +163,8 @@ async function sendUnapprovalNotification(appointmentData) {
     console.log(`טלפון: ${appointmentData.phone}`);
     console.log(`קישור: ${whatsappLink}\n`);
     
-    try {
-        exec(`start ${whatsappLink}`);
-        console.log('✅ Unapproval notification link opened!\n');
-        return { success: true, link: whatsappLink };
-    } catch (error) {
-        console.log('ℹ️  Manual notification needed\n');
-        return { success: false, link: whatsappLink };
-    }
+    console.log('✅ Unapproval notification link generated!\n');
+    return { success: true, link: whatsappLink };
 }
 
 /**

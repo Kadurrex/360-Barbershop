@@ -3,6 +3,7 @@ const ADMIN_PASSWORD = '360admin';
 let appointments = [];
 let currentFilter = 'all';
 let authToken = '';
+let refreshInterval;
 
 // Check if already logged in
 if (localStorage.getItem('adminLoggedIn') === 'true') {
@@ -33,11 +34,23 @@ function showDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadAppointments();
-    // Refresh every 30 seconds
-    setInterval(loadAppointments, 30000);
+    
+    // Clear any existing refresh interval
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+    
+    // Refresh every 15 seconds for better responsiveness
+    refreshInterval = setInterval(loadAppointments, 15000);
 }
 
 function logout() {
+    // Clear refresh interval
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+    }
+    
     localStorage.removeItem('adminLoggedIn');
     localStorage.removeItem('authToken');
     location.reload();
