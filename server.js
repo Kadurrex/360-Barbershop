@@ -217,10 +217,12 @@ app.put('/api/appointments/:id/status', authenticateAdmin, async (req, res) => {
         console.log(`Appointment ${req.params.id} status updated: ${oldStatus} → ${status}`);
         
         // Send confirmation to client when approved
+        let whatsappLink = null;
         if (status === 'approved' && oldStatus !== 'approved') {
             try {
                 // Send WhatsApp confirmation
                 const confirmResult = await sendClientConfirmation(appointment);
+                whatsappLink = confirmResult.link;
                 console.log(`✅ Confirmation sent to client: ${appointment.name}`);
                 
                 // Add to Google Calendar
@@ -245,7 +247,7 @@ app.put('/api/appointments/:id/status', authenticateAdmin, async (req, res) => {
             }
         }
         
-        res.json({ success: true, appointment });
+        res.json({ success: true, appointment, whatsappLink });
     } catch (error) {
         console.error('Error updating appointment status:', error);
         res.status(500).json({ error: 'Failed to update appointment status' });

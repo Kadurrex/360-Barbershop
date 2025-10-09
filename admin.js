@@ -226,6 +226,13 @@ async function updateStatus(id, status) {
         }
         
         if (response.ok) {
+            const result = await response.json();
+            
+            // Show WhatsApp link if appointment was approved
+            if (result.whatsappLink) {
+                showWhatsAppLink(result.whatsappLink, result.appointment.name);
+            }
+            
             loadAppointments();
         }
     } catch (error) {
@@ -259,4 +266,91 @@ async function deleteAppointment(id) {
         console.error('Error deleting appointment:', error);
         alert('שגיאה במחיקת התור');
     }
+}
+
+/**
+ * Show WhatsApp link in a popup/modal
+ */
+function showWhatsAppLink(whatsappLink, clientName) {
+    // Create a modal popup
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `;
+    
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    `;
+    
+    modalContent.innerHTML = `
+        <h3 style="color: #25D366; margin-bottom: 20px;">📱 שליחת הודעת WhatsApp</h3>
+        <p style="margin-bottom: 20px;">התור של <strong>${clientName}</strong> אושר בהצלחה!</p>
+        <p style="margin-bottom: 20px;">לחץ על הכפתור למטה כדי לשלוח הודעת אישור ללקוח:</p>
+        
+        <a href="${whatsappLink}" target="_blank" style="
+            display: inline-block;
+            background: #25D366;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 10px;
+            transition: background 0.3s;
+        " onmouseover="this.style.background='#128C7E'" onmouseout="this.style.background='#25D366'">
+            📱 פתח WhatsApp
+        </a>
+        
+        <button onclick="this.closest('.modal').remove()" style="
+            background: #666;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        ">
+            סגור
+        </button>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px;">
+            <small style="color: #666;">
+                💡 טיפ: הכפתור יפתח WhatsApp Web עם ההודעה מוכנה לשליחה
+            </small>
+        </div>
+    `;
+    
+    modal.className = 'modal';
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    // Auto-close after 30 seconds
+    setTimeout(() => {
+        if (document.body.contains(modal)) {
+            modal.remove();
+        }
+    }, 30000);
 }
