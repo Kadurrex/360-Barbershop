@@ -53,8 +53,17 @@ async function sendOwnerNotification(appointmentData) {
  * Send WhatsApp confirmation to client after approval
  */
 async function sendClientConfirmation(appointmentData) {
-    // Format Israeli phone number (remove leading 0, add 972)
-    let clientPhone = appointmentData.phone.replace(/^0/, '972').replace(/\D/g, '');
+    // Format Israeli phone number properly
+    let clientPhone = appointmentData.phone.replace(/\D/g, ''); // Remove all non-digits
+    
+    // If starts with 0, replace with 972
+    if (clientPhone.startsWith('0')) {
+        clientPhone = '972' + clientPhone.substring(1);
+    }
+    // If doesn't start with 972, add it
+    else if (!clientPhone.startsWith('972')) {
+        clientPhone = '972' + clientPhone;
+    }
     
     const message = `
 ✅ *התור שלך אושר!*
@@ -78,7 +87,9 @@ async function sendClientConfirmation(appointmentData) {
     const whatsappLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(message)}`;
     
     console.log('\n📱 שליחת אישור ללקוח...');
-    console.log(`טלפון: ${appointmentData.phone}`);
+    console.log(`שם: ${appointmentData.name}`);
+    console.log(`טלפון מקורי: ${appointmentData.phone}`);
+    console.log(`טלפון מעובד: ${clientPhone}`);
     console.log(`קישור: ${whatsappLink}\n`);
     
     console.log('✅ Confirmation link generated!\n');
@@ -89,7 +100,17 @@ async function sendClientConfirmation(appointmentData) {
  * Send WhatsApp reminder 30 minutes before appointment
  */
 async function sendClientReminder(appointmentData) {
-    let clientPhone = appointmentData.phone.replace(/^0/, '972').replace(/\D/g, '');
+    // Format Israeli phone number properly
+    let clientPhone = appointmentData.phone.replace(/\D/g, ''); // Remove all non-digits
+    
+    // If starts with 0, replace with 972
+    if (clientPhone.startsWith('0')) {
+        clientPhone = '972' + clientPhone.substring(1);
+    }
+    // If doesn't start with 972, add it
+    else if (!clientPhone.startsWith('972')) {
+        clientPhone = '972' + clientPhone;
+    }
     
     const message = `
 ⏰ *תזכורת לתור!*
@@ -137,7 +158,17 @@ function getServiceName(serviceCode) {
  * Send WhatsApp notification when appointment is unapproved
  */
 async function sendUnapprovalNotification(appointmentData) {
-    let clientPhone = appointmentData.phone.replace(/^0/, '972').replace(/\D/g, '');
+    // Format Israeli phone number properly
+    let clientPhone = appointmentData.phone.replace(/\D/g, ''); // Remove all non-digits
+    
+    // If starts with 0, replace with 972
+    if (clientPhone.startsWith('0')) {
+        clientPhone = '972' + clientPhone.substring(1);
+    }
+    // If doesn't start with 972, add it
+    else if (!clientPhone.startsWith('972')) {
+        clientPhone = '972' + clientPhone;
+    }
     
     const message = `
 ⚠️ *עדכון לגבי התור שלך*
