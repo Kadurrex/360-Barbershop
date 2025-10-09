@@ -53,7 +53,7 @@ app.use(express.static('.', {
 // Authentication middleware for admin routes
 const authenticateAdmin = (req, res, next) => {
     const token = req.headers.authorization;
-    if (!token || token !== \`Bearer \${ADMIN_PASSWORD}\`) {
+    if (!token || token !== `Bearer ${ADMIN_PASSWORD}`) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
     next();
