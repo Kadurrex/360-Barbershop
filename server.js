@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const cron = require('node-cron');
 const { sendOwnerNotification, sendClientConfirmation, sendClientReminder, sendUnapprovalNotification } = require('./whatsapp-service');
-const { addEventToCalendar } = require('./google-calendar');
+const { addEventToCalendar, getBusyTimes } = require('./google-calendar');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -135,7 +135,7 @@ app.post('/api/appointments', async (req, res) => {
 });
 
 // Get available time slots for a specific date
-app.get('/api/available-slots/:date', (req, res) => {
+app.get('/api/available-slots/:date', async (req, res) => {
     try {
         const requestedDate = req.params.date;
         const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
@@ -157,15 +157,28 @@ app.get('/api/available-slots/:date', (req, res) => {
             .filter(brk => brk.date === requestedDate)
             .flatMap(brk => brk.times);
         
-        // Combine booked and break slots
-        const unavailableSlots = [...new Set([...bookedSlots, ...breakSlots])];
+        // Get busy times from Google Calendar
+        let calendarBusySlots = [];
+        try {
+            calendarBusySlots = await getBusyTimes(requestedDate);
+            console.log(`📅 Google Calendar busy times for ${requestedDate}:`, calendarBusySlots);
+        } catch (error) {
+            console.error('Error fetching Google Calendar busy times:', error);
+            // Continue without calendar busy times if there's an error
+        }
+        
+        // Combine booked slots, break slots, and calendar busy slots
+        const unavailableSlots = [...new Set([...bookedSlots, ...breakSlots, ...calendarBusySlots])];
+        
+        console.log(`Unavailable slots for ${requestedDate}:`, unavailableSlots);
         
         // Return available slots
         const availableSlots = allSlots.filter(slot => !unavailableSlots.includes(slot));
         
         res.json({ 
             date: requestedDate,
-            availableSlots
+            availableSlots,
+            calendarBusySlots // Include this for debugging
         });
     } catch (error) {
         console.error('Error getting available slots:', error);

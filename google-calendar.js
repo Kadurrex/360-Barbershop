@@ -106,4 +106,77 @@ async function addEventToCalendar(appointment) {
     }
 }
 
-module.exports = { addEventToCalendar };
+async function getBusyTimes(date) {
+    try {
+        const auth = getAuth();
+        const calendar = google.calendar({ version: 'v3', auth });
+
+        // Parse the date
+        const [year, month, day] = date.split('-');
+        
+        // Create start and end of day in Israeli timezone
+        const startOfDay = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 0, 0, 0);
+        const endOfDay = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 23, 59, 59);
+
+        console.log(`Fetching busy times for ${date}`);
+        console.log(`Start: ${startOfDay.toISOString()}`);
+        console.log(`End: ${endOfDay.toISOString()}`);
+
+        // Fetch all events for the day
+        const response = await calendar.events.list({
+            calendarId: 'primary',
+            timeMin: startOfDay.toISOString(),
+            timeMax: endOfDay.toISOString(),
+            timeZone: 'Asia/Jerusalem',
+            singleEvents: true,
+            orderBy: 'startTime',
+        });
+
+        const events = response.data.items || [];
+        const busyTimes = [];
+
+        events.forEach(event => {
+            if (event.start && event.start.dateTime) {
+                const startTime = new Date(event.start.dateTime);
+                const endTime = new Date(event.end.dateTime);
+                
+                // Convert to Israeli local time and extract the hour
+                const startHour = startTime.toLocaleString('en-US', { 
+                    timeZone: 'Asia/Jerusalem', 
+                    hour: '2-digit', 
+                    hour12: false 
+                });
+                
+                const endHour = endTime.toLocaleString('en-US', { 
+                    timeZone: 'Asia/Jerusalem', 
+                    hour: '2-digit', 
+                    hour12: false 
+                });
+
+                console.log(`Event: ${event.summary}`);
+                console.log(`Time: ${startHour}:00 - ${endHour}:00`);
+
+                // Add all hours that this event spans
+                let currentHour = parseInt(startHour);
+                const finalHour = parseInt(endHour);
+                
+                while (currentHour < finalHour) {
+                    const timeSlot = `${currentHour.toString().padStart(2, '0')}:00`;
+                    if (!busyTimes.includes(timeSlot)) {
+                        busyTimes.push(timeSlot);
+                    }
+                    currentHour++;
+                }
+            }
+        });
+
+        console.log(`Busy times for ${date}:`, busyTimes);
+        return busyTimes;
+    } catch (error) {
+        console.error('Error fetching busy times from Google Calendar:', error);
+        // Return empty array if there's an error (don't block booking)
+        return [];
+    }
+}
+
+module.exports = { addEventToCalendar, getBusyTimes };
