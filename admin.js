@@ -133,35 +133,60 @@ function displayAppointments() {
     container.innerHTML = filteredAppts.map(apt => `
         <div class="appointment-card" data-id="${apt.id}">
             <div class="appointment-header">
-                <h4>${apt.name}</h4>
+                <h4 class="appointment-name">${apt.name}</h4>
                 <span class="appointment-status status-${apt.status || 'pending'}">
                     ${getStatusText(apt.status)}
                 </span>
             </div>
             <div class="appointment-details">
                 <div class="detail-item">
-                    <strong>📞 טלפון:</strong>
-                    <span>${apt.phone}</span>
+                    <span class="detail-icon">📞</span>
+                    <span class="detail-label">טלפון:</span>
+                    <span class="detail-value">${apt.phone}</span>
                 </div>
                 <div class="detail-item">
-                    <strong>💇 שירות:</strong>
-                    <span>${getServiceName(apt.service)}</span>
+                    <span class="detail-icon">💇</span>
+                    <span class="detail-label">שירות:</span>
+                    <span class="detail-value">${getServiceName(apt.service)}</span>
                 </div>
                 <div class="detail-item">
-                    <strong>📅 תאריך:</strong>
-                    <span>${formatDate(apt.date)}</span>
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-label">תאריך:</span>
+                    <span class="detail-value">${formatDate(apt.date)}</span>
                 </div>
                 <div class="detail-item">
-                    <strong>🕐 שעה:</strong>
-                    <span>${apt.time}</span>
+                    <span class="detail-icon">🕐</span>
+                    <span class="detail-label">שעה:</span>
+                    <span class="detail-value">${apt.time}</span>
                 </div>
+                ${apt.notes ? `
+                <div class="detail-item">
+                    <span class="detail-icon">📝</span>
+                    <span class="detail-label">הערות:</span>
+                    <span class="detail-value">${apt.notes}</span>
+                </div>
+                ` : ''}
             </div>
-            ${apt.notes ? `<div style="margin-top: 1rem;"><strong style="color: #f0e68c;">📝 הערות:</strong> ${apt.notes}</div>` : ''}
             <div class="appointment-actions">
-                ${apt.status === 'pending' ? `<button class="btn btn-approve" onclick="updateStatus('${apt.id}', 'approved')">אשר תור</button>` : ''}
-                ${apt.status === 'approved' ? `<button class="btn btn-pending" onclick="updateStatus('${apt.id}', 'pending')">בטל אישור</button>` : ''}
-                ${apt.status !== 'cancelled' ? `<button class="btn btn-cancel" onclick="updateStatus('${apt.id}', 'cancelled')">בטל תור</button>` : ''}
-                <button class="btn btn-delete" onclick="deleteAppointment('${apt.id}')">מחק</button>
+                ${apt.status === 'pending' || !apt.status ? `
+                    <button class="btn btn-approve" onclick="updateStatus('${apt.id}', 'approved')">
+                        ✅ אשר תור
+                    </button>
+                    <button class="btn btn-cancel" onclick="updateStatus('${apt.id}', 'cancelled')">
+                        ❌ בטל תור
+                    </button>
+                ` : ''}
+                ${apt.status === 'approved' ? `
+                    <button class="btn btn-pending" onclick="updateStatus('${apt.id}', 'pending')">
+                        ⏸️ בטל אישור
+                    </button>
+                    <button class="btn btn-cancel" onclick="updateStatus('${apt.id}', 'cancelled')">
+                        ❌ בטל תור
+                    </button>
+                ` : ''}
+                <button class="btn btn-delete" onclick="deleteAppointment('${apt.id}')">
+                    🗑️ מחק
+                </button>
             </div>
         </div>
     `).join('');
@@ -299,38 +324,41 @@ function showWhatsAppLink(whatsappLink, clientName) {
     `;
     
     modalContent.innerHTML = `
-        <h3 style="color: #25D366; margin-bottom: 20px;">📱 שליחת הודעת WhatsApp</h3>
-        <p style="margin-bottom: 20px;">התור של <strong>${clientName}</strong> אושר בהצלחה!</p>
-        <p style="margin-bottom: 20px;">לחץ על הכפתור למטה כדי לשלוח הודעת אישור ללקוח:</p>
+        <h3 style="color: var(--primary-gold); margin-bottom: 20px; font-size: 1.5rem;">📱 שליחת הודעת WhatsApp</h3>
+        <p style="margin-bottom: 20px; color: var(--text-primary);">התור של <strong style="color: var(--primary-gold);">${clientName}</strong> אושר בהצלחה!</p>
+        <p style="margin-bottom: 20px; color: var(--text-secondary);">לחץ על הכפתור למטה כדי לשלוח הודעת אישור ללקוח:</p>
         
         <a href="${whatsappLink}" target="_blank" style="
             display: inline-block;
-            background: #25D366;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
             color: white;
             padding: 15px 30px;
             text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-weight: 600;
             margin: 10px;
-            transition: background 0.3s;
-        " onmouseover="this.style.background='#128C7E'" onmouseout="this.style.background='#25D366'">
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-lg)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'">
             📱 פתח WhatsApp
         </a>
         
         <button onclick="this.closest('.modal').remove()" style="
-            background: #666;
+            background: #6B7280;
             color: white;
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
             margin: 10px;
-        ">
+            font-weight: 500;
+            transition: all 0.2s ease;
+        " onmouseover="this.style.background='#4B5563'" onmouseout="this.style.background='#6B7280'">
             סגור
         </button>
         
-        <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px;">
-            <small style="color: #666;">
+        <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; border: 1px solid var(--border-color);">
+            <small style="color: var(--text-secondary);">
                 💡 טיפ: הכפתור יפתח WhatsApp Web עם ההודעה מוכנה לשליחה
             </small>
         </div>
