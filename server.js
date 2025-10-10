@@ -2,8 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const cron = require('node-cron');
-const { sendOwnerNotification, sendClientConfirmation, sendClientReminder, sendUnapprovalNotification, sendCancellationNotification } = require('./whatsapp-service');
+const { sendOwnerNotification, sendClientConfirmation, sendUnapprovalNotification, sendCancellationNotification } = require('./whatsapp-service');
 const { addEventToCalendar, getBusyTimes } = require('./google-calendar');
 
 const app = express();
@@ -58,32 +57,6 @@ const authenticateAdmin = (req, res, next) => {
     }
     next();
 };
-
-// Check for upcoming appointments every minute and send reminders
-cron.schedule('* * * * *', () => {
-    try {
-        const appointments = JSON.parse(fs.readFileSync(APPOINTMENTS_FILE, 'utf8'));
-        const now = new Date();
-        
-        appointments.forEach(apt => {
-            if (apt.status === 'approved' && !apt.reminderSent) {
-                const aptDateTime = new Date(apt.date + 'T' + apt.time);
-                const timeDiff = aptDateTime - now;
-                const minutesDiff = Math.floor(timeDiff / 1000 / 60);
-                
-                // Send reminder between 25-35 minutes before
-                if (minutesDiff >= 25 && minutesDiff <= 35) {
-                    sendClientReminder(apt);
-                    apt.reminderSent = true;
-                    fs.writeFileSync(APPOINTMENTS_FILE, JSON.stringify(appointments, null, 2));
-                    console.log(`✅ Reminder sent for appointment: ${apt.name} at ${apt.time} (${minutesDiff} min before)`);
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Error in reminder cron job:', error);
-    }
-});
 
 // Public routes
 app.post('/api/appointments', async (req, res) => {

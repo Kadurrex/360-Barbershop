@@ -100,52 +100,6 @@ async function sendClientConfirmation(appointmentData) {
 }
 
 /**
- * Send WhatsApp reminder 30 minutes before appointment
- */
-async function sendClientReminder(appointmentData) {
-    // Format Israeli phone number properly
-    let clientPhone = appointmentData.phone.replace(/\D/g, ''); // Remove all non-digits
-    
-    // If starts with 0, replace with 972
-    if (clientPhone.startsWith('0')) {
-        clientPhone = '972' + clientPhone.substring(1);
-    }
-    // If doesn't start with 972, add it
-    else if (!clientPhone.startsWith('972')) {
-        clientPhone = '972' + clientPhone;
-    }
-    
-    const message = `
-⏰ *תזכורת לתור!*
-
-שלום ${appointmentData.name}! 👋
-
-מזכירים לך שיש לך תור במספרת 360 מעלות *בעוד חצי שעה!*
-
-🕐 *שעה:* ${appointmentData.time}
-💇 *שירות:* ${getServiceName(appointmentData.service)}
-
-📍 *כתובת:* ויצמן 1, כפר סבא
-📞 *טלפון:* 053-5594136
-
-אנחנו מחכים לך! 💈
-    `.trim();
-
-    const whatsappLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(message)}`;
-    
-    console.log('\n⏰ שליחת תזכורת ללקוח...');
-    console.log(`שם: ${appointmentData.name}`);
-    console.log(`שעה: ${appointmentData.time}`);
-    console.log(`קישור: ${whatsappLink}\n`);
-    
-    // In production, we just return the link
-    console.log('✅ WhatsApp reminder link generated');
-    
-    console.log('✅ Reminder link generated!\n');
-    return { success: true, link: whatsappLink };
-}
-
-/**
  * Get service name in Hebrew
  */
 function getServiceName(serviceCode) {
@@ -296,7 +250,6 @@ async function sendCancellationNotification(appointmentData) {
 module.exports = {
     sendOwnerNotification,
     sendClientConfirmation,
-    sendClientReminder,
     sendUnapprovalNotification,
     sendCancellationNotification
 };
