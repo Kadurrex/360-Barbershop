@@ -137,33 +137,43 @@ async function getBusyTimes(date) {
 
         events.forEach(event => {
             if (event.start && event.start.dateTime) {
-                const startTime = new Date(event.start.dateTime);
-                const endTime = new Date(event.end.dateTime);
+                // Get the raw datetime strings from Google Calendar
+                const startTimeStr = event.start.dateTime;
+                const endTimeStr = event.end.dateTime;
                 
-                // Convert to Israeli local time and extract the hour
-                const startHour = startTime.toLocaleString('en-US', { 
+                console.log(`\nProcessing event: ${event.summary}`);
+                console.log(`Start datetime: ${startTimeStr}`);
+                console.log(`End datetime: ${endTimeStr}`);
+                
+                // Create Date objects
+                const startTime = new Date(startTimeStr);
+                const endTime = new Date(endTimeStr);
+                
+                // Convert to Israeli time and get the hour
+                const startHourInIsrael = parseInt(startTime.toLocaleString('en-US', { 
                     timeZone: 'Asia/Jerusalem', 
                     hour: '2-digit', 
                     hour12: false 
-                });
+                }));
                 
-                const endHour = endTime.toLocaleString('en-US', { 
+                const endHourInIsrael = parseInt(endTime.toLocaleString('en-US', { 
                     timeZone: 'Asia/Jerusalem', 
                     hour: '2-digit', 
                     hour12: false 
-                });
-
-                console.log(`Event: ${event.summary}`);
-                console.log(`Time: ${startHour}:00 - ${endHour}:00`);
+                }));
+                
+                console.log(`Israeli time: ${startHourInIsrael}:00 - ${endHourInIsrael}:00`);
 
                 // Add all hours that this event spans
-                let currentHour = parseInt(startHour);
-                const finalHour = parseInt(endHour);
+                let currentHour = startHourInIsrael;
+                const finalHour = endHourInIsrael;
                 
+                // Block the start hour and all hours up to (but not including) the end hour
                 while (currentHour < finalHour) {
                     const timeSlot = `${currentHour.toString().padStart(2, '0')}:00`;
                     if (!busyTimes.includes(timeSlot)) {
                         busyTimes.push(timeSlot);
+                        console.log(`  Blocking: ${timeSlot}`);
                     }
                     currentHour++;
                 }
