@@ -40,8 +40,8 @@ function showDashboard() {
         clearInterval(refreshInterval);
     }
     
-    // Refresh every 15 seconds for better responsiveness
-    refreshInterval = setInterval(loadAppointments, 15000);
+    // Refresh every 10 seconds for better responsiveness
+    refreshInterval = setInterval(loadAppointments, 10000);
 }
 
 function logout() {
