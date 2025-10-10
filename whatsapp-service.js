@@ -243,9 +243,60 @@ async function sendWhatsAppViaWebAPI(phoneNumber, message) {
     }
 }
 
+/**
+ * Send WhatsApp notification when appointment is cancelled by barber
+ */
+async function sendCancellationNotification(appointmentData) {
+    // Format Israeli phone number properly
+    let clientPhone = appointmentData.phone.replace(/\D/g, ''); // Remove all non-digits
+    
+    // If starts with 0, replace with 972
+    if (clientPhone.startsWith('0')) {
+        clientPhone = '972' + clientPhone.substring(1);
+    }
+    // If doesn't start with 972, add it
+    else if (!clientPhone.startsWith('972')) {
+        clientPhone = '972' + clientPhone;
+    }
+    
+    const message = `
+❌ *ביטול תור*
+
+שלום ${appointmentData.name},
+
+לצערנו, אנחנו צריכים לבטל את התור שלך במספרת 360 מעלות.
+
+📅 *תאריך:* ${formatDateHebrew(appointmentData.date)}
+🕐 *שעה:* ${appointmentData.time}
+💇 *שירות:* ${getServiceName(appointmentData.service)}
+
+נשמח אם תוכל לקבוע תור חדש במועד אחר! 🙏
+
+🌐 *לקביעת תור:* https://three60-barbershop.onrender.com
+📞 *טלפון:* 053-5594136
+
+סליחה על אי הנוחות!
+    `.trim();
+
+    const whatsappLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(message)}`;
+    
+    console.log('\n❌ שליחת הודעת ביטול ללקוח...');
+    console.log(`שם: ${appointmentData.name}`);
+    console.log(`טלפון מקורי: ${appointmentData.phone}`);
+    console.log(`טלפון מעובד: ${clientPhone}`);
+    console.log(`קישור: ${whatsappLink}\n`);
+    
+    // In production, we just return the link
+    console.log('✅ WhatsApp cancellation link generated');
+    
+    console.log('✅ Cancellation notification link generated!\n');
+    return { success: true, link: whatsappLink };
+}
+
 module.exports = {
     sendOwnerNotification,
     sendClientConfirmation,
     sendClientReminder,
-    sendUnapprovalNotification
+    sendUnapprovalNotification,
+    sendCancellationNotification
 };

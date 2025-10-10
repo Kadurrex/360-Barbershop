@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const cron = require('node-cron');
-const { sendOwnerNotification, sendClientConfirmation, sendClientReminder, sendUnapprovalNotification } = require('./whatsapp-service');
+const { sendOwnerNotification, sendClientConfirmation, sendClientReminder, sendUnapprovalNotification, sendCancellationNotification } = require('./whatsapp-service');
 const { addEventToCalendar, getBusyTimes } = require('./google-calendar');
 
 const app = express();
@@ -254,9 +254,21 @@ app.put('/api/appointments/:id/status', authenticateAdmin, async (req, res) => {
         if (status === 'pending' && oldStatus === 'approved') {
             try {
                 const unapprovalResult = await sendUnapprovalNotification(appointment);
+                whatsappLink = unapprovalResult.link;
                 console.log(`⚠️  Unapproval notification sent to client: ${appointment.name}`);
             } catch (error) {
                 console.error('Error sending unapproval notification:', error);
+            }
+        }
+        
+        // Send notification to client when cancelled
+        if (status === 'cancelled' && oldStatus !== 'cancelled') {
+            try {
+                const cancellationResult = await sendCancellationNotification(appointment);
+                whatsappLink = cancellationResult.link;
+                console.log(`❌ Cancellation notification sent to client: ${appointment.name}`);
+            } catch (error) {
+                console.error('Error sending cancellation notification:', error);
             }
         }
         
