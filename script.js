@@ -26,28 +26,89 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
 
 document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('date');
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.setAttribute('min', today);
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+        
+        // Set default date to today
+        dateInput.value = today;
+        
+        // Load available slots for today
+        loadAvailableSlots(today);
+        
+        // When date changes, update available slots
+        dateInput.addEventListener('change', function() {
+            loadAvailableSlots(this.value);
+        });
+        
+        // Auto-refresh available slots every 10 seconds
+        setInterval(() => {
+            const currentDate = dateInput.value;
+            if (currentDate) {
+                loadAvailableSlots(currentDate);
+                console.log('🔄 Auto-refreshed available slots');
+            }
+        }, 10000); // 10 seconds
+    }
     
-    // Set default date to today
-    dateInput.value = today;
+    // Load reviews
+    loadReviews();
     
-    // Load available slots for today
-    loadAvailableSlots(today);
-    
-    // When date changes, update available slots
-    dateInput.addEventListener('change', function() {
-        loadAvailableSlots(this.value);
-    });
-    
-    // Auto-refresh available slots every 10 seconds
-    setInterval(() => {
-        const currentDate = dateInput.value;
-        if (currentDate) {
-            loadAvailableSlots(currentDate);
-            console.log('🔄 Auto-refreshed available slots');
-        }
-    }, 10000); // 10 seconds
+    // Handle review form submission
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'שולח...';
+            submitButton.disabled = true;
+            
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            if (!ratingInput) {
+                alert('אנא בחר דירוג');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                return;
+            }
+            
+            const formData = {
+                name: document.getElementById('reviewName').value,
+                rating: parseInt(ratingInput.value),
+                text: document.getElementById('reviewText').value
+            };
+            
+            try {
+                const response = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Reset form
+                    reviewForm.reset();
+                    // Reload reviews
+                    loadReviews();
+                    // Show success message
+                    alert('תודה על הביקורת! הביקורת שלך נוספה בהצלחה ✨');
+                } else {
+                    alert(result.error || 'אירעה שגיאה בשליחת הביקורת');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('אירעה שגיאה בשליחת הביקורת');
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        });
+    }
 });
 
 // Load available time slots for selected date
@@ -203,58 +264,6 @@ window.addEventListener('scroll', function() {
 });
 
 // Reviews functionality
-document.addEventListener('DOMContentLoaded', function() {
-    loadReviews();
-    
-    // Handle review form submission
-    const reviewForm = document.getElementById('reviewForm');
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
-            submitButton.textContent = 'שולח...';
-            submitButton.disabled = true;
-            
-            const formData = {
-                name: document.getElementById('reviewName').value,
-                rating: parseInt(document.querySelector('input[name="rating"]:checked').value),
-                text: document.getElementById('reviewText').value
-            };
-            
-            try {
-                const response = await fetch('/api/reviews', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    // Reset form
-                    reviewForm.reset();
-                    // Reload reviews
-                    loadReviews();
-                    // Show success message
-                    alert('תודה על הביקורת! הביקורת שלך נוספה בהצלחה ✨');
-                } else {
-                    alert(result.error || 'אירעה שגיאה בשליחת הביקורת');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('אירעה שגיאה בשליחת הביקורת');
-            } finally {
-                submitButton.textContent = originalText;
-                submitButton.disabled = false;
-            }
-        });
-    }
-});
-
 async function loadReviews() {
     try {
         const response = await fetch('/api/reviews');
