@@ -92,31 +92,8 @@ async function sendClientConfirmation(appointmentData) {
     console.log(`טלפון מעובד: ${clientPhone}`);
     console.log(`קישור: ${whatsappLink}\n`);
     
-    // Try to open WhatsApp in browser
-    try {
-        const { exec } = require('child_process');
-        let openCommand;
-        
-        if (process.platform === 'win32') {
-            openCommand = 'start';
-        } else if (process.platform === 'darwin') {
-            openCommand = 'open';
-        } else {
-            openCommand = 'xdg-open';
-        }
-        
-        exec(`${openCommand} "${whatsappLink}"`, (error) => {
-            if (error) {
-                console.log('ℹ️  Could not open browser automatically. Copy this link:');
-                console.log(whatsappLink);
-            } else {
-                console.log('✅ WhatsApp opened in browser!');
-            }
-        });
-    } catch (error) {
-        console.log('ℹ️  Could not open browser automatically. Copy this link:');
-        console.log(whatsappLink);
-    }
+    // In production, we just return the link - the dashboard will handle opening it
+    console.log('✅ WhatsApp link generated for dashboard popup');
     
     console.log('✅ Confirmation link generated!\n');
     return { success: true, link: whatsappLink };
@@ -161,31 +138,8 @@ async function sendClientReminder(appointmentData) {
     console.log(`שעה: ${appointmentData.time}`);
     console.log(`קישור: ${whatsappLink}\n`);
     
-    // Try to open WhatsApp in browser
-    try {
-        const { exec } = require('child_process');
-        let openCommand;
-        
-        if (process.platform === 'win32') {
-            openCommand = 'start';
-        } else if (process.platform === 'darwin') {
-            openCommand = 'open';
-        } else {
-            openCommand = 'xdg-open';
-        }
-        
-        exec(`${openCommand} "${whatsappLink}"`, (error) => {
-            if (error) {
-                console.log('ℹ️  Could not open browser automatically. Copy this link:');
-                console.log(whatsappLink);
-            } else {
-                console.log('✅ WhatsApp reminder opened in browser!');
-            }
-        });
-    } catch (error) {
-        console.log('ℹ️  Could not open browser automatically. Copy this link:');
-        console.log(whatsappLink);
-    }
+    // In production, we just return the link
+    console.log('✅ WhatsApp reminder link generated');
     
     console.log('✅ Reminder link generated!\n');
     return { success: true, link: whatsappLink };
@@ -246,31 +200,8 @@ async function sendUnapprovalNotification(appointmentData) {
     console.log(`טלפון: ${appointmentData.phone}`);
     console.log(`קישור: ${whatsappLink}\n`);
     
-    // Try to open WhatsApp in browser
-    try {
-        const { exec } = require('child_process');
-        let openCommand;
-        
-        if (process.platform === 'win32') {
-            openCommand = 'start';
-        } else if (process.platform === 'darwin') {
-            openCommand = 'open';
-        } else {
-            openCommand = 'xdg-open';
-        }
-        
-        exec(`${openCommand} "${whatsappLink}"`, (error) => {
-            if (error) {
-                console.log('ℹ️  Could not open browser automatically. Copy this link:');
-                console.log(whatsappLink);
-            } else {
-                console.log('✅ WhatsApp unapproval opened in browser!');
-            }
-        });
-    } catch (error) {
-        console.log('ℹ️  Could not open browser automatically. Copy this link:');
-        console.log(whatsappLink);
-    }
+    // In production, we just return the link
+    console.log('✅ WhatsApp unapproval link generated');
     
     console.log('✅ Unapproval notification link generated!\n');
     return { success: true, link: whatsappLink };
