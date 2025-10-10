@@ -39,6 +39,15 @@ document.addEventListener('DOMContentLoaded', function() {
     dateInput.addEventListener('change', function() {
         loadAvailableSlots(this.value);
     });
+    
+    // Auto-refresh available slots every 30 seconds
+    setInterval(() => {
+        const currentDate = dateInput.value;
+        if (currentDate) {
+            loadAvailableSlots(currentDate);
+            console.log('🔄 Auto-refreshed available slots');
+        }
+    }, 30000); // 30 seconds
 });
 
 // Load available time slots for selected date
