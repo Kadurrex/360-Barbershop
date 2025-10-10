@@ -202,3 +202,116 @@ window.addEventListener('scroll', function() {
     }
 });
 
+// Reviews functionality
+document.addEventListener('DOMContentLoaded', function() {
+    loadReviews();
+    
+    // Handle review form submission
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'שולח...';
+            submitButton.disabled = true;
+            
+            const formData = {
+                name: document.getElementById('reviewName').value,
+                rating: parseInt(document.querySelector('input[name="rating"]:checked').value),
+                text: document.getElementById('reviewText').value
+            };
+            
+            try {
+                const response = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Reset form
+                    reviewForm.reset();
+                    // Reload reviews
+                    loadReviews();
+                    // Show success message
+                    alert('תודה על הביקורת! הביקורת שלך נוספה בהצלחה ✨');
+                } else {
+                    alert(result.error || 'אירעה שגיאה בשליחת הביקורת');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('אירעה שגיאה בשליחת הביקורת');
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        });
+    }
+});
+
+async function loadReviews() {
+    try {
+        const response = await fetch('/api/reviews');
+        const reviews = await response.json();
+        
+        const container = document.getElementById('reviewsContainer');
+        
+        if (reviews.length === 0) {
+            container.innerHTML = `
+                <div class="no-reviews">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="9" cy="9" r="1" fill="currentColor"/>
+                        <circle cx="15" cy="9" r="1" fill="currentColor"/>
+                    </svg>
+                    <p>עדיין אין ביקורות. היה הראשון לשתף את החוויה שלך!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Sort reviews by date (newest first)
+        reviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        container.innerHTML = reviews.map(review => `
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-name">${review.name}</div>
+                    <div class="review-rating">${'⭐'.repeat(review.rating)}</div>
+                </div>
+                <p class="review-text">${review.text}</p>
+                <div class="review-date">${formatReviewDate(review.createdAt)}</div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+    }
+}
+
+function formatReviewDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+        return 'היום';
+    } else if (diffDays === 1) {
+        return 'אתמול';
+    } else if (diffDays < 7) {
+        return `לפני ${diffDays} ימים`;
+    } else if (diffDays < 30) {
+        const weeks = Math.floor(diffDays / 7);
+        return `לפני ${weeks} ${weeks === 1 ? 'שבוע' : 'שבועות'}`;
+    } else {
+        return date.toLocaleDateString('he-IL');
+    }
+}
+

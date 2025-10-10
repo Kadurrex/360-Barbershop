@@ -21,6 +21,7 @@ const APPOINTMENTS_FILE = path.join(DATA_DIR, 'appointments.json');
 const BREAKS_FILE = path.join(DATA_DIR, 'breaks.json');
 const CREDENTIALS_FILE = path.join(DATA_DIR, 'credentials.json');
 const TOKEN_FILE = path.join(DATA_DIR, 'token.json');
+const REVIEWS_FILE = path.join(DATA_DIR, 'reviews.json');
 
 // Initialize files if they don't exist
 if (!fs.existsSync(APPOINTMENTS_FILE)) {
@@ -28,6 +29,9 @@ if (!fs.existsSync(APPOINTMENTS_FILE)) {
 }
 if (!fs.existsSync(BREAKS_FILE)) {
     fs.writeFileSync(BREAKS_FILE, JSON.stringify([], null, 2));
+}
+if (!fs.existsSync(REVIEWS_FILE)) {
+    fs.writeFileSync(REVIEWS_FILE, JSON.stringify([], null, 2));
 }
 
 // Middleware
@@ -266,6 +270,45 @@ app.delete('/api/appointments/:id', authenticateAdmin, (req, res) => {
         res.json({ success: true, message: 'Appointment deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete appointment' });
+    }
+});
+
+// Reviews endpoints
+app.get('/api/reviews', (req, res) => {
+    try {
+        const reviews = JSON.parse(fs.readFileSync(REVIEWS_FILE, 'utf8'));
+        res.json(reviews);
+    } catch (error) {
+        console.error('Error reading reviews:', error);
+        res.status(500).json({ error: 'Failed to read reviews' });
+    }
+});
+
+app.post('/api/reviews', (req, res) => {
+    try {
+        const reviews = JSON.parse(fs.readFileSync(REVIEWS_FILE, 'utf8'));
+        
+        const newReview = {
+            id: Date.now().toString(),
+            name: req.body.name,
+            rating: req.body.rating,
+            text: req.body.text,
+            createdAt: new Date().toISOString()
+        };
+        
+        reviews.push(newReview);
+        fs.writeFileSync(REVIEWS_FILE, JSON.stringify(reviews, null, 2));
+        
+        console.log(`✨ New review added: ${newReview.rating} stars by ${newReview.name}`);
+        
+        res.status(201).json({ 
+            success: true, 
+            message: 'Review added successfully',
+            review: newReview 
+        });
+    } catch (error) {
+        console.error('Error adding review:', error);
+        res.status(500).json({ error: 'Failed to add review' });
     }
 });
 
