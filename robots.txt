@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /secure_data/
+
+Sitemap: https://three60-barbershop.onrender.com/sitemap.xml
+
