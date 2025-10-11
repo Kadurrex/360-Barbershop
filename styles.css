@@ -41,7 +41,7 @@ body {
     background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
     z-index: 1000;
-    padding: 1rem 0;
+    padding: 0.8rem 0;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
@@ -147,12 +147,13 @@ body {
 /* Hero Section */
 .hero {
     position: relative;
-    height: 100vh;
+    height: 85vh;
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
     overflow: hidden;
+    max-height: 700px;
 }
 
 .hero::before {
@@ -185,7 +186,7 @@ body {
 }
 
 .hero-title {
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: 900;
     color: var(--text-light);
     margin-bottom: 1rem;
@@ -194,7 +195,7 @@ body {
 }
 
 .hero-subtitle {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: var(--accent-color);
     margin-bottom: 2rem;
     font-weight: 300;
@@ -598,33 +599,44 @@ section {
         transform: scale(0.9);
     }
 
-    /* Mobile Hero - Smaller and Cleaner */
+    /* Mobile Hero - Compact and Professional */
     .hero {
-        height: 60vh;
-        min-height: 500px;
+        height: auto;
+        min-height: 400px;
+        padding: 6rem 0 4rem 0;
     }
 
     .hero-content {
-        padding: 1rem;
+        padding: 2rem 1rem;
     }
 
     .hero-title {
-        font-size: 2.2rem;
+        font-size: 2rem;
         padding: 0 1rem;
-        margin-bottom: 0.8rem;
-        line-height: 1.2;
+        margin-bottom: 1rem;
+        line-height: 1.3;
     }
     
     .hero-subtitle {
         font-size: 1rem;
-        padding: 0 1rem;
-        margin-bottom: 1.5rem;
-        line-height: 1.4;
+        padding: 0 1.5rem;
+        margin-bottom: 2rem;
+        line-height: 1.5;
     }
 
     .btn-primary {
-        padding: 0.9rem 2rem;
+        padding: 1rem 2.5rem;
         font-size: 1rem;
+    }
+
+    /* Compact Navbar for Tablet */
+    .navbar {
+        padding: 0.6rem 0;
+    }
+
+    .nav-brand svg {
+        width: 40px;
+        height: 40px;
     }
 
     /* Mobile Sections */
@@ -847,40 +859,47 @@ section {
 @media (max-width: 480px) {
     /* Compact Hero for Small Phones */
     .hero {
-        height: 50vh;
-        min-height: 450px;
+        height: auto;
+        min-height: 350px;
+        padding: 5rem 0 3rem 0;
+    }
+
+    .hero-content {
+        padding: 1.5rem 1rem;
     }
 
     .hero-title {
-        font-size: 1.8rem;
+        font-size: 1.75rem;
         line-height: 1.2;
-        padding: 0 10px;
-        margin-bottom: 0.5rem;
+        padding: 0 0.5rem;
+        margin-bottom: 0.8rem;
     }
 
     .hero-subtitle {
-        font-size: 0.95rem;
-        padding: 0 15px;
-        margin-bottom: 1.2rem;
-        opacity: 0.9;
+        font-size: 0.9rem;
+        padding: 0 1rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
     }
 
     .btn-primary {
-        width: 85%;
-        margin: 0 auto;
-        display: block;
-        padding: 0.9rem 1.5rem;
+        padding: 0.85rem 2rem;
         font-size: 0.95rem;
     }
 
-    /* Compact navbar on small screens */
+    /* Very Compact Navbar on Small Screens */
     .navbar {
-        padding: 0.7rem 0;
+        padding: 0.5rem 0;
     }
 
     .nav-brand svg {
         width: 35px;
         height: 35px;
+    }
+
+    .menu-toggle svg {
+        width: 22px;
+        height: 22px;
     }
 
     .service-card,
