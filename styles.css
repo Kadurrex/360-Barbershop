@@ -33,21 +33,23 @@ body {
     padding: 0 20px;
 }
 
-/* Navigation - Clean Shopify Style */
+/* Navigation - Clean Shopify Style with Dark Theme */
 .navbar {
     position: fixed;
     top: 0;
     width: 100%;
-    background: #ffffff;
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(10px);
     z-index: 1000;
     padding: 0;
-    border-bottom: 1px solid #e5e5e5;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
 }
 
 .navbar.scrolled {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: rgba(26, 26, 26, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .navbar .container {
@@ -63,7 +65,7 @@ body {
     display: none;
     background: none;
     border: none;
-    color: #1a1a1a;
+    color: var(--primary-gold);
     cursor: pointer;
     padding: 0.5rem;
     z-index: 1000;
@@ -72,7 +74,7 @@ body {
 }
 
 .menu-toggle:hover {
-    color: var(--primary-gold);
+    color: var(--accent-color);
 }
 
 @media (max-width: 768px) {
@@ -122,7 +124,7 @@ body {
 }
 
 .nav-menu a {
-    color: #1a1a1a;
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     font-weight: 500;
     font-size: 0.9rem;
@@ -154,13 +156,14 @@ body {
 }
 
 .btn-nav {
-    background: #1a1a1a !important;
-    color: #ffffff !important;
+    background: var(--gradient) !important;
+    color: var(--secondary-color) !important;
     padding: 0.7rem 1.5rem !important;
     border-radius: 4px;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.9rem !important;
-    transition: background 0.2s ease, transform 0.2s ease !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 
 .btn-nav::after {
@@ -168,9 +171,8 @@ body {
 }
 
 .btn-nav:hover {
-    background: var(--primary-gold) !important;
-    color: #000 !important;
-    transform: none !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
 }
 
 /* Hero Section */
@@ -616,11 +618,12 @@ section {
         top: -100%;
         right: 0;
         left: 0;
-        background: #ffffff;
+        background: rgba(26, 26, 26, 0.98);
+        backdrop-filter: blur(10px);
         padding: 2rem 1.5rem;
         transition: top 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border-bottom: 1px solid #e5e5e5;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
         z-index: 999;
         grid-column: 1 / -1;
         justify-self: stretch;
@@ -638,7 +641,7 @@ section {
 
     .nav-menu a {
         padding: 1rem 0;
-        border-bottom: 1px solid #f5f5f5;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         text-align: left;
     }
 
