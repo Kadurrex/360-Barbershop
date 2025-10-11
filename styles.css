@@ -601,18 +601,24 @@ section {
 /* Mobile Navigation - Shopify Sidebar Style */
 @media (max-width: 768px) {
     .navbar .container {
-        grid-template-columns: auto 1fr auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
         padding: 0.8rem 1.5rem;
     }
 
     .menu-toggle {
         display: block;
-        grid-column: 1;
+        position: absolute;
+        left: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
     .nav-brand {
-        grid-column: 2;
-        justify-self: center;
+        position: relative;
+        margin: 0 auto;
     }
 
     /* Sidebar Menu */
