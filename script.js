@@ -144,6 +144,12 @@ document.getElementById('appointmentForm').addEventListener('submit', async func
             document.getElementById('appointmentForm').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
             
+            // Scroll to success message smoothly
+            document.getElementById('successMessage').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            
             // Reset form and show it again after 5 seconds
             setTimeout(() => {
                 document.getElementById('appointmentForm').reset();

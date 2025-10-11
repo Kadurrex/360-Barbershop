@@ -21,6 +21,10 @@ body {
     color: var(--text-dark);
     line-height: 1.6;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Improve touch scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
 }
 
 .container {
@@ -447,6 +451,9 @@ section {
 .form-group select,
 .form-group textarea {
     width: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
     padding: 1rem;
     border: 2px solid rgba(212, 175, 55, 0.3);
     border-radius: 8px;
@@ -481,6 +488,9 @@ section {
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
+    /* Better tap target for mobile */
+    min-height: 50px;
+    touch-action: manipulation;
 }
 
 .btn-submit:hover {
@@ -495,6 +505,8 @@ section {
     background: rgba(76, 175, 80, 0.1);
     border-radius: 15px;
     border: 2px solid #4caf50;
+    margin: 2rem 0;
+    scroll-margin-top: 100px; /* Space for fixed navbar */
 }
 
 .success-icon {
@@ -595,6 +607,35 @@ section {
     /* Mobile Sections */
     section {
         padding: 3rem 0;
+    }
+
+    /* Improve form button visibility */
+    button[type="submit"] {
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        min-height: 55px;
+        font-weight: 600;
+    }
+
+    /* Make appointment form more touch-friendly */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    /* Available slots container */
+    .available-slots {
+        margin: 1.5rem 0;
+    }
+
+    .available-slots h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
     }
 
     .section-title {
@@ -783,12 +824,21 @@ section {
 @media (max-width: 480px) {
     .hero-title {
         font-size: 2rem;
+        line-height: 1.2;
+        padding: 0 10px;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        padding: 0 15px;
     }
 
     .btn-primary {
         width: 90%;
         margin: 0 auto;
         display: block;
+        padding: 1rem 2rem;
+        font-size: 1rem;
     }
 
     .service-card,
@@ -798,8 +848,73 @@ section {
         border-radius: 10px;
     }
 
+    /* Make form inputs larger for mobile */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        padding: 1rem;
+        min-height: 50px;
+    }
+
+    /* Time slots more touch-friendly */
+    .time-slot {
+        padding: 1rem;
+        font-size: 1rem;
+        min-width: 80px;
+        min-height: 50px;
+        margin: 0.3rem;
+    }
+
+    /* Success message more visible */
+    .success-message {
+        padding: 2rem 1.5rem;
+        font-size: 1.1rem;
+        margin: 1rem;
+        border-radius: 15px;
+    }
+
+    .success-message h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .success-message p {
+        font-size: 1.1rem;
+    }
+
+    .success-icon svg {
+        width: 60px;
+        height: 60px;
+    }
+
+    /* Make sections more compact on mobile */
+    section {
+        padding: 3rem 0;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Appointment form adjustments */
+    .appointment-container {
+        padding: 1.5rem 1rem;
+    }
+
+    .appointment-form {
+        padding: 1.5rem 1rem;
+    }
+
+    /* Contact info more readable */
+    .contact-details {
+        font-size: 1rem;
+    }
+
     .phone-link {
         font-size: 1.5rem;
+        padding: 1rem 2rem;
     }
 
     /* Extra Small Screen Dashboard */
