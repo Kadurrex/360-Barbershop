@@ -190,6 +190,7 @@ body {
     color: var(--text-light);
     margin-bottom: 1rem;
     text-shadow: 2px 2px 20px rgba(212, 175, 55, 0.5);
+    animation: fadeInUp 0.8s ease-out;
 }
 
 .hero-subtitle {
@@ -197,6 +198,18 @@ body {
     color: var(--accent-color);
     margin-bottom: 2rem;
     font-weight: 300;
+    animation: fadeInUp 1s ease-out 0.2s backwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .btn-primary {
@@ -210,6 +223,7 @@ body {
     font-size: 1.2rem;
     transition: all 0.3s ease;
     box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+    animation: fadeInUp 1.2s ease-out 0.4s backwards;
 }
 
 .btn-primary:hover {
@@ -584,24 +598,33 @@ section {
         transform: scale(0.9);
     }
 
-    /* Mobile Hero */
+    /* Mobile Hero - Smaller and Cleaner */
     .hero {
-        height: 90vh;
+        height: 60vh;
+        min-height: 500px;
+    }
+
+    .hero-content {
+        padding: 1rem;
     }
 
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         padding: 0 1rem;
+        margin-bottom: 0.8rem;
+        line-height: 1.2;
     }
     
     .hero-subtitle {
-        font-size: 1.1rem;
+        font-size: 1rem;
         padding: 0 1rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
     }
 
     .btn-primary {
-        padding: 0.8rem 2rem;
-        font-size: 1.1rem;
+        padding: 0.9rem 2rem;
+        font-size: 1rem;
     }
 
     /* Mobile Sections */
@@ -822,23 +845,42 @@ section {
 
 /* Additional Mobile Improvements */
 @media (max-width: 480px) {
+    /* Compact Hero for Small Phones */
+    .hero {
+        height: 50vh;
+        min-height: 450px;
+    }
+
     .hero-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
         line-height: 1.2;
         padding: 0 10px;
+        margin-bottom: 0.5rem;
     }
 
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 0.95rem;
         padding: 0 15px;
+        margin-bottom: 1.2rem;
+        opacity: 0.9;
     }
 
     .btn-primary {
-        width: 90%;
+        width: 85%;
         margin: 0 auto;
         display: block;
-        padding: 1rem 2rem;
-        font-size: 1rem;
+        padding: 0.9rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    /* Compact navbar on small screens */
+    .navbar {
+        padding: 0.7rem 0;
+    }
+
+    .nav-brand svg {
+        width: 35px;
+        height: 35px;
     }
 
     .service-card,
