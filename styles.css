@@ -597,7 +597,7 @@ section {
     color: #999;
 }
 
-/* Mobile Navigation */
+/* Mobile Navigation - Shopify Sidebar Style */
 @media (max-width: 768px) {
     .navbar .container {
         grid-template-columns: auto 1fr auto;
@@ -613,36 +613,36 @@ section {
         grid-column: 2;
     }
 
+    /* Sidebar Menu */
     .nav-menu {
         position: fixed;
-        top: -100%;
-        right: 0;
-        left: 0;
+        top: 0;
+        right: -100%;
+        width: 300px;
+        height: 100vh;
         background: rgba(26, 26, 26, 0.98);
         backdrop-filter: blur(10px);
-        padding: 2rem 1.5rem;
-        transition: top 0.3s ease;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-        z-index: 999;
-        grid-column: 1 / -1;
-        justify-self: stretch;
-    }
-
-    .nav-menu.active {
-        top: 65px;
-    }
-
-    .nav-menu {
+        padding: 5rem 2rem 2rem 2rem;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        overflow-y: auto;
         flex-direction: column;
         gap: 0;
         align-items: stretch;
+        grid-column: unset;
+        justify-self: unset;
+    }
+
+    .nav-menu.active {
+        right: 0;
     }
 
     .nav-menu a {
-        padding: 1rem 0;
+        padding: 1.2rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        text-align: left;
+        text-align: right;
+        font-size: 1rem;
     }
 
     .nav-menu a::after {
@@ -650,14 +650,34 @@ section {
     }
 
     .btn-nav {
-        margin-top: 1rem;
+        margin-top: 1.5rem;
         text-align: center;
         border: none !important;
+        display: block;
+        width: 100%;
     }
 
     .nav-brand svg {
         width: 40px;
         height: 40px;
+    }
+
+    /* Overlay when menu is open */
+    body.menu-open::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     /* Mobile Hero */

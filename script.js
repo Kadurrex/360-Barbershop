@@ -1,18 +1,20 @@
 // Set minimum date to today
-// Mobile Menu Toggle
+// Mobile Menu Toggle - Shopify Style
 const menuToggle = document.querySelector('.menu-toggle');
 const navMenu = document.querySelector('.nav-menu');
 
 menuToggle.addEventListener('click', () => {
     navMenu.classList.toggle('active');
     menuToggle.classList.toggle('active');
+    document.body.classList.toggle('menu-open');
 });
 
-// Close menu when clicking outside
+// Close menu when clicking outside (on overlay)
 document.addEventListener('click', (e) => {
-    if (!e.target.closest('.nav-menu') && !e.target.closest('.menu-toggle')) {
+    if (!e.target.closest('.nav-menu') && !e.target.closest('.menu-toggle') && navMenu.classList.contains('active')) {
         navMenu.classList.remove('active');
         menuToggle.classList.remove('active');
+        document.body.classList.remove('menu-open');
     }
 });
 
@@ -21,6 +23,7 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
     link.addEventListener('click', () => {
         navMenu.classList.remove('active');
         menuToggle.classList.remove('active');
+        document.body.classList.remove('menu-open');
     });
 });
 
