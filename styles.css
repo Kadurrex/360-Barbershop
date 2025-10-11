@@ -99,6 +99,7 @@ body {
     cursor: pointer;
     transition: opacity 0.2s ease;
     grid-column: 2;
+    justify-self: center;
 }
 
 .nav-brand:hover {
@@ -611,6 +612,7 @@ section {
 
     .nav-brand {
         grid-column: 2;
+        justify-self: center;
     }
 
     /* Sidebar Menu */
